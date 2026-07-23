@@ -1,0 +1,146 @@
+﻿@{
+    ViewData["Title"] = "Registro Manual de Asistencia";
+
+    // Lista de clases simuladas en C#
+    var clases = new[]
+    {
+        new { Id = "prog1", Nombre = "Programación I - Grupo A01 - 10:00 AM" },
+        new { Id = "bd", Nombre = "Base de Datos - Grupo B02 - 2:00 PM" },
+        new { Id = "algo", Nombre = "Algoritmos - Grupo A03 - 8:00 AM" },
+        new { Id = "calculo", Nombre = "Cálculo - Grupo C01 - 4:00 PM" }
+    };
+}
+
+<div class="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Registrar Manualmente la Asistencia</h1>
+        <p class="text-muted-foreground">
+            Si tuviste problemas técnicos, registra tu asistencia manualmente
+        </p>
+    </div>
+
+    <!-- ESTADO 1: Formulario de Registro Manual -->
+    <div id="formState" class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-border">
+        
+        <form id="manualForm" asp-controller="Asistencia" asp-action="RegistroManual" method="post" onsubmit="handleSubmit(event)" class="space-y-6">
+            @Html.AntiForgeryToken()
+
+            <!-- Selección de Clase -->
+            <div>
+                <label for="clase" class="block text-foreground mb-2 font-medium">
+                    Selecciona la Clase Correspondiente
+                </label>
+                <div class="relative">
+                    <i class="bi bi-calendar3 absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
+                    <select id="clase"
+                            name="clase"
+                            class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium"
+                            required>
+                        <option value="">Selecciona una clase</option>
+                        @foreach (var clase in clases)
+                        {
+                            <option value="@clase.Id">@clase.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <p class="text-xs text-muted-foreground mt-2">
+                    <i class="bi bi-info-circle mr-1"></i> Solo se muestran clases de hoy que están activas
+                </p>
+            </div>
+
+            <!-- Motivo -->
+            <div>
+                <label for="motivo" class="block text-foreground mb-2 font-medium">
+                    Motivo del Registro Manual
+                </label>
+                <textarea id="motivo"
+                          name="motivo"
+                          rows="4"
+                          placeholder="Ej: Problema con lector NFC, dispositivo sin batería, etc."
+                          class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring resize-none font-medium"
+                          required></textarea>
+            </div>
+
+            <!-- Caja Advertencia -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h3 class="font-bold text-yellow-800 mb-2 flex items-center gap-2">
+                    <i class="bi bi-exclamation-triangle-fill text-yellow-600 text-lg"></i>
+                    Importante
+                </h3>
+                <ul class="text-sm text-yellow-900 space-y-1 pl-1">
+                    <li class="flex items-center gap-2">
+                        <span>•</span> Tu registro manual debe ser confirmado por el docente
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span>•</span> El estado aparecerá como "Pendiente de confirmación"
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span>•</span> Recibirás una notificación cuando sea confirmado o rechazado
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span>•</span> Solo puedes registrar manualmente dentro del horario de clase
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex flex-col sm:flex-row gap-4 pt-2">
+                <button type="submit"
+                        class="flex-1 bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors font-medium shadow-md">
+                    Enviar Solicitud
+                </button>
+                <button type="button"
+                        onclick="window.history.back()"
+                        class="px-6 py-3 border border-border rounded-lg hover:bg-accent transition-colors font-medium text-foreground">
+                    Cancelar
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- ESTADO 2: Confirmación de Solicitud Enviada (Oculto por defecto) -->
+    <div id="successState" class="hidden bg-white rounded-2xl shadow-xl p-12 border border-border text-center">
+        
+        <div class="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="bi bi-check-circle text-yellow-600 text-5xl"></i>
+        </div>
+        
+        <h2 class="text-3xl font-bold text-foreground mb-4">¡Solicitud Enviada!</h2>
+        <p class="text-muted-foreground mb-2 text-base">
+            Tu registro manual ha sido enviado al docente
+        </p>
+        
+        <p class="text-sm text-muted-foreground mb-6">
+            Estado: <span class="text-yellow-600 font-bold">Pendiente de Confirmación</span>
+        </p>
+        
+        <button type="button"
+                onclick="reiniciarVista()"
+                class="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-secondary transition-colors font-medium shadow">
+            Registrar otra asistencia
+        </button>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        function handleSubmit(e) {
+            // Descomentar e.preventDefault() si deseas probar el flujo sin recargar la página:
+            // e.preventDefault();
+
+            document.getElementById('formState').classList.add('hidden');
+            document.getElementById('successState').classList.remove('hidden');
+        }
+
+        function reiniciarVista() {
+            document.getElementById('manualForm').reset();
+            document.getElementById('successState').classList.add('hidden');
+            document.getElementById('formState').classList.remove('hidden');
+        }
+    </script>
+}

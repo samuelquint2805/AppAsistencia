@@ -1,0 +1,56 @@
+<header class="bg-white border-b border-border shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+
+            <div class="flex items-center">
+                <a href="/home/index" class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center overflow-hidden shadow-sm">
+                        <img src="~/images/Logo_itm_instagram.png" alt="Logo ITM" class="w-full h-full object-contain" />
+                    </div>
+                    <span class="text-foreground hidden sm:block">Instituto Tecnológico Metropolitano</span>
+                </a>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="/home/index" class="text-foreground hover:text-primary transition-colors">Inicio</a>
+                <a href="/about" class="text-foreground hover:text-primary transition-colors">Acerca</a>
+                <a href="/Home/FeaturesPage" class="text-foreground hover:text-primary transition-colors">Funcionalidades</a>
+                <a href="/Home/ContactPage" class="text-foreground hover:text-primary transition-colors">Contacto</a>
+                <a href="/Role/RolePermissions" class="text-foreground hover:text-primary transition-colors">Admin</a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <button id="mobile-menu-button" class="md:hidden p-2" aria-label="Toggle menu">
+                    <i class="bi bi-list" id="icon-menu-open" style="font-size: 1.5rem;"></i>
+                    <i class="bi bi-x-lg hidden" id="icon-menu-close" style="font-size: 1.5rem;"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden py-4 border-t border-border">
+            <nav class="flex flex-col gap-4">
+                <a href="/home" class="text-foreground hover:text-primary transition-colors px-2 py-2">Inicio</a>
+                <a href="/about" class="text-foreground hover:text-primary transition-colors px-2 py-2">Acerca</a>
+                <a href="/features" class="text-foreground hover:text-primary transition-colors px-2 py-2">Funcionalidades</a>
+                <a href="/contact" class="text-foreground hover:text-primary transition-colors px-2 py-2">Contacto</a>
+                <a href="/Role/RolePermissions" class="text-foreground hover:text-primary transition-colors px-2 py-2">Admin</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<script>
+    // Reemplaza el useState de React: togglea la visibilidad del menú móvil con JS plano
+    document.addEventListener('DOMContentLoaded', function () {
+        const button = document.getElementById('mobile-menu-button');
+        const menu = document.getElementById('mobile-menu');
+        const iconOpen = document.getElementById('icon-menu-open');
+        const iconClose = document.getElementById('icon-menu-close');
+
+        button.addEventListener('click', function () {
+            menu.classList.toggle('hidden');
+            iconOpen.classList.toggle('hidden');
+            iconClose.classList.toggle('hidden');
+        });
+    });
+</script>

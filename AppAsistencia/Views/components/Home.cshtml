@@ -1,0 +1,90 @@
+﻿@model AppAsistencia.Models.HomeViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <div class="mb-8">
+        <h1 class="text-foreground mb-2">Panel de Control</h1>
+        <p class="text-muted-foreground">Bienvenido al Sistema de Control de Asistencia ITM</p>
+    </div>
+
+    <!-- Tarjetas principales -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        @foreach (var accion in Model.AccionesPrincipales)
+        {
+            <a href="@accion.Href" class="@accion.Clases text-white rounded-2xl p-6 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center mb-4">
+                        <i class="bi @accion.Icono" style="font-size: 1.75rem;"></i>
+                    </div>
+                    <h2 class="mb-2">@accion.Titulo</h2>
+                    <p class="text-sm opacity-90">@accion.Descripcion</p>
+                </div>
+            </a>
+        }
+    </div>
+
+    <!-- Acciones rápidas -->
+    <div class="bg-white rounded-2xl shadow-md border border-border p-6 mb-8">
+        <h3 class="text-foreground mb-4">Acciones Rápidas</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @foreach (var accion in Model.AccionesSecundarias)
+            {
+                <a href="@accion.Href" class="flex items-start gap-4 p-4 rounded-xl hover:bg-accent transition-colors">
+                    <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="bi @accion.Icono text-primary" style="font-size: 1.25rem;"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-foreground mb-1">@accion.Titulo</h4>
+                        <p class="text-sm text-muted-foreground">@accion.Descripcion</p>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Resumen de hoy + Próximas clases -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div class="bg-white rounded-2xl shadow-md border border-border p-6">
+            <h3 class="text-foreground mb-4">Resumen de Hoy</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center pb-3 border-b border-border">
+                    <span class="text-muted-foreground">Clases programadas</span>
+                    <span class="text-foreground">@Model.Resumen.ClasesProgramadas</span>
+                </div>
+                <div class="flex justify-between items-center pb-3 border-b border-border">
+                    <span class="text-muted-foreground">Asistencias registradas</span>
+                    <span class="text-foreground">@Model.Resumen.AsistenciasRegistradas</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-muted-foreground">Porcentaje de asistencia</span>
+                    <span class="text-primary">@Model.Resumen.PorcentajeAsistencia%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-md border border-border p-6">
+            <h3 class="text-foreground mb-4">Próximas Clases</h3>
+            <div class="space-y-3">
+                @foreach (var clase in Model.ProximasClases)
+                {
+                    <div class="flex items-start gap-3 p-3 bg-accent rounded-lg">
+                        <div class="w-12 h-12 @clase.ColorFondo rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="bi bi-calendar-event text-white" style="font-size: 1.25rem;"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-foreground">@clase.NombreClase</h4>
+                            <p class="text-sm text-muted-foreground">@clase.Horario - @clase.Aula</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+</div>

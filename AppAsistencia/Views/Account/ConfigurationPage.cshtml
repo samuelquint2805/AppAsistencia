@@ -1,0 +1,172 @@
+﻿@{
+    ViewData["Title"] = "Configuración";
+}
+
+<div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Configuración</h1>
+        <p class="text-muted-foreground">Personaliza tu experiencia en el sistema</p>
+    </div>
+
+    <form asp-controller="Configuracion" asp-action="Guardar" method="post" class="space-y-6">
+        @Html.AntiForgeryToken()
+
+        <!-- Sección 1: Perfil -->
+        <div class="bg-white rounded-2xl shadow-lg border border-border p-6">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="bi bi-person text-primary text-2xl"></i>
+                <h2 class="text-xl font-bold text-foreground">Perfil</h2>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-foreground mb-2 font-medium">Nombre Completo</label>
+                    <input type="text"
+                           value="Juan Pérez García"
+                           class="w-full px-4 py-3 bg-gray-100 border border-input rounded-lg focus:outline-none text-muted-foreground cursor-not-allowed"
+                           disabled />
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-foreground mb-2 font-medium">Correo</label>
+                        <input type="email"
+                               value="juan.perez@itm.edu.co"
+                               class="w-full px-4 py-3 bg-gray-100 border border-input rounded-lg focus:outline-none text-muted-foreground cursor-not-allowed"
+                               disabled />
+                    </div>
+                    <div>
+                        <label class="block text-foreground mb-2 font-medium">ID Estudiante / Código</label>
+                        <input type="text"
+                               value="20241234567"
+                               class="w-full px-4 py-3 bg-gray-100 border border-input rounded-lg focus:outline-none text-muted-foreground cursor-not-allowed"
+                               disabled />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección 2: Notificaciones -->
+        <div class="bg-white rounded-2xl shadow-lg border border-border p-6">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="bi bi-bell text-primary text-2xl"></i>
+                <h2 class="text-xl font-bold text-foreground">Notificaciones</h2>
+            </div>
+            <div class="space-y-4">
+                
+                <div class="flex items-center justify-between py-3 border-b border-border">
+                    <div>
+                        <h3 class="font-medium text-foreground">Notificaciones por Email</h3>
+                        <p class="text-sm text-muted-foreground">Recibe avisos en tu correo institucional</p>
+                    </div>
+                    <label class="relative inline-block w-12 h-6">
+                        <input type="checkbox" name="notificacionesEmail" value="true" checked class="sr-only peer" />
+                        <span class="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"></span>
+                        <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></span>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between py-3 border-b border-border">
+                    <div>
+                        <h3 class="font-medium text-foreground">Notificaciones Push</h3>
+                        <p class="text-sm text-muted-foreground">Alertas en tiempo real</p>
+                    </div>
+                    <label class="relative inline-block w-12 h-6">
+                        <input type="checkbox" name="notificacionesPush" value="true" checked class="sr-only peer" />
+                        <span class="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"></span>
+                        <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></span>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between py-3 border-b border-border">
+                    <div>
+                        <h3 class="font-medium text-foreground">Alerta de Asistencia Baja</h3>
+                        <p class="text-sm text-muted-foreground">Aviso cuando caigas por debajo del 80%</p>
+                    </div>
+                    <label class="relative inline-block w-12 h-6">
+                        <input type="checkbox" name="alertaAsistenciaBaja" value="true" checked class="sr-only peer" />
+                        <span class="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"></span>
+                        <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></span>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between py-3">
+                    <div>
+                        <h3 class="font-medium text-foreground">Recordatorios de Clase</h3>
+                        <p class="text-sm text-muted-foreground">Aviso 15 minutos antes de cada clase</p>
+                    </div>
+                    <label class="relative inline-block w-12 h-6">
+                        <input type="checkbox" name="recordatoriosClase" value="true" checked class="sr-only peer" />
+                        <span class="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"></span>
+                        <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></span>
+                    </label>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Sección 3: Método de Registro -->
+        <div class="bg-white rounded-2xl shadow-lg border border-border p-6">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="bi bi-phone text-primary text-2xl"></i>
+                <h2 class="text-xl font-bold text-foreground">Método de Registro</h2>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="metodoPreferido" class="block text-foreground mb-2 font-medium">Método Preferido</label>
+                    <select id="metodoPreferido"
+                            name="metodoPreferido"
+                            class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium">
+                        <option value="nfc" selected>NFC</option>
+                        <option value="ble">Bluetooth (BLE)</option>
+                        <option value="biometrico">Biométrico</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección 4: Privacidad y Seguridad -->
+        <div class="bg-white rounded-2xl shadow-lg border border-border p-6">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="bi bi-shield-check text-primary text-2xl"></i>
+                <h2 class="text-xl font-bold text-foreground">Privacidad y Seguridad</h2>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-3">
+                    <div>
+                        <h3 class="font-medium text-foreground">Consentimiento Biométrico</h3>
+                        <p class="text-sm text-muted-foreground">
+                            Autorizar el uso de datos biométricos para validación de identidad
+                        </p>
+                    </div>
+                    <label class="relative inline-block w-12 h-6">
+                        <input type="checkbox" name="consentimientoBiometrico" value="true" class="sr-only peer" />
+                        <span class="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"></span>
+                        <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></span>
+                    </label>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-sm text-blue-900">
+                        <i class="bi bi-info-circle mr-1"></i>
+                        Tus datos biométricos están cifrados con AES-256 y se almacenan de forma segura.
+                        Puedes solicitar su eliminación en cualquier momento.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex flex-col sm:flex-row gap-4 pt-2">
+            <button type="submit"
+                    class="flex-1 bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors flex items-center justify-center gap-2 font-medium">
+                <i class="bi bi-floppy text-lg"></i>
+                Guardar Cambios
+            </button>
+            <a asp-controller="Home" asp-action="Index"
+               class="px-6 py-3 border border-border rounded-lg hover:bg-accent transition-colors text-center font-medium text-foreground block text-decoration-none">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,259 @@
+﻿@{
+    ViewData["Title"] = "Confirmar Asistencias Manuales";
+}
+
+<div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Confirmar Asistencias Manuales</h1>
+        <p class="text-muted-foreground">
+            Revisa y confirma las solicitudes de registro manual de tus estudiantes
+        </p>
+    </div>
+
+    <!-- Contadores Resumen -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-white rounded-xl shadow-md border border-border p-6">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="bi bi-clock text-yellow-600 text-xl"></i>
+                <h3 class="text-muted-foreground font-medium">Pendientes</h3>
+            </div>
+            <p id="count-pendientes" class="text-3xl font-bold text-yellow-600">3</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md border border-border p-6">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="bi bi-check-circle text-green-600 text-xl"></i>
+                <h3 class="text-muted-foreground font-medium">Confirmadas</h3>
+            </div>
+            <p id="count-confirmadas" class="text-3xl font-bold text-green-600">0</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md border border-border p-6">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="bi bi-x-circle text-red-600 text-xl"></i>
+                <h3 class="text-muted-foreground font-medium">Rechazadas</h3>
+            </div>
+            <p id="count-rechazadas" class="text-3xl font-bold text-red-600">0</p>
+        </div>
+    </div>
+
+    <!-- Sección de Solicitudes Pendientes -->
+    <div id="section-pendientes" class="mb-8">
+        <h2 class="text-xl font-bold text-foreground mb-4">Solicitudes Pendientes</h2>
+        <div id="lista-pendientes" class="space-y-4">
+
+            <!-- Tarjeta 1 -->
+            <div id="card-1" class="bg-white rounded-xl shadow-md border border-border p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-start gap-4 flex-1">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="bi bi-person text-primary text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-foreground mb-1">Juan Pérez García</h3>
+                            <p class="text-sm text-muted-foreground mb-2">ID: 20241234567</p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm mb-3">
+                                <div>
+                                    <span class="text-muted-foreground">Clase: </span>
+                                    <span class="text-foreground font-medium">Programación I - Grupo A01</span>
+                                </div>
+                                <div>
+                                    <span class="text-muted-foreground">Fecha y hora: </span>
+                                    <span class="text-foreground font-medium">02/06/2026 - 10:15 AM</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <p class="text-sm font-medium text-muted-foreground mb-1">Motivo:</p>
+                                <p class="text-sm text-foreground">Problema con el lector NFC en la entrada del aula</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 justify-end pt-2">
+                    <button onclick="procesarSolicitud(1, 'rechazar', 'Juan Pérez García', 'Programación I - Grupo A01', '02/06/2026')"
+                            class="px-6 py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2 font-medium">
+                        <i class="bi bi-x-circle text-lg"></i>
+                        Rechazar
+                    </button>
+                    <button onclick="procesarSolicitud(1, 'confirmar', 'Juan Pérez García', 'Programación I - Grupo A01', '02/06/2026')"
+                            class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 font-medium shadow">
+                        <i class="bi bi-check-circle text-lg"></i>
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tarjeta 2 -->
+            <div id="card-2" class="bg-white rounded-xl shadow-md border border-border p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-start gap-4 flex-1">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="bi bi-person text-primary text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-foreground mb-1">María López Ruiz</h3>
+                            <p class="text-sm text-muted-foreground mb-2">ID: 20241234568</p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm mb-3">
+                                <div>
+                                    <span class="text-muted-foreground">Clase: </span>
+                                    <span class="text-foreground font-medium">Programación I - Grupo A01</span>
+                                </div>
+                                <div>
+                                    <span class="text-muted-foreground">Fecha y hora: </span>
+                                    <span class="text-foreground font-medium">02/06/2026 - 10:20 AM</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <p class="text-sm font-medium text-muted-foreground mb-1">Motivo:</p>
+                                <p class="text-sm text-foreground">Dispositivo móvil sin batería, no pude usar BLE</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 justify-end pt-2">
+                    <button onclick="procesarSolicitud(2, 'rechazar', 'María López Ruiz', 'Programación I - Grupo A01', '02/06/2026')"
+                            class="px-6 py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2 font-medium">
+                        <i class="bi bi-x-circle text-lg"></i>
+                        Rechazar
+                    </button>
+                    <button onclick="procesarSolicitud(2, 'confirmar', 'María López Ruiz', 'Programación I - Grupo A01', '02/06/2026')"
+                            class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 font-medium shadow">
+                        <i class="bi bi-check-circle text-lg"></i>
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tarjeta 3 -->
+            <div id="card-3" class="bg-white rounded-xl shadow-md border border-border p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-start gap-4 flex-1">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="bi bi-person text-primary text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-foreground mb-1">Carlos Martínez Silva</h3>
+                            <p class="text-sm text-muted-foreground mb-2">ID: 20241234569</p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm mb-3">
+                                <div>
+                                    <span class="text-muted-foreground">Clase: </span>
+                                    <span class="text-foreground font-medium">Base de Datos - Grupo B02</span>
+                                </div>
+                                <div>
+                                    <span class="text-muted-foreground">Fecha y hora: </span>
+                                    <span class="text-foreground font-medium">02/06/2026 - 2:05 PM</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <p class="text-sm font-medium text-muted-foreground mb-1">Motivo:</p>
+                                <p class="text-sm text-foreground">Llegué justo cuando cerraron el sistema automático</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 justify-end pt-2">
+                    <button onclick="procesarSolicitud(3, 'rechazar', 'Carlos Martínez Silva', 'Base de Datos - Grupo B02', '02/06/2026')"
+                            class="px-6 py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2 font-medium">
+                        <i class="bi bi-x-circle text-lg"></i>
+                        Rechazar
+                    </button>
+                    <button onclick="procesarSolicitud(3, 'confirmar', 'Carlos Martínez Silva', 'Base de Datos - Grupo B02', '02/06/2026')"
+                            class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 font-medium shadow">
+                        <i class="bi bi-check-circle text-lg"></i>
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Sección de Solicitudes Procesadas -->
+    <div id="section-procesadas" class="hidden">
+        <h2 class="text-xl font-bold text-foreground mb-4">Solicitudes Procesadas</h2>
+        <div id="lista-procesadas" class="space-y-4">
+            <!-- Se llenará dinámicamente al confirmar o rechazar -->
+        </div>
+    </div>
+
+    <!-- Mensaje cuando no hay solicitudes -->
+    <div id="empty-state" class="hidden bg-white rounded-xl shadow-md border border-border p-12 text-center">
+        <i class="bi bi-clock text-5xl text-muted-foreground opacity-50 block mb-4"></i>
+        <h3 class="text-xl font-bold text-foreground mb-2">No hay solicitudes</h3>
+        <p class="text-muted-foreground">
+            No tienes solicitudes de asistencia manual pendientes en este momento
+        </p>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        let countPendientes = 3;
+        let countConfirmadas = 0;
+        let countRechazadas = 0;
+
+        function procesarSolicitud(id, accion, estudiante, clase, fecha) {
+            // Eliminar tarjeta pendiente
+            const card = document.getElementById(`card-${id}`);
+            if (card) card.remove();
+
+            // Actualizar contadores
+            countPendientes--;
+            document.getElementById('count-pendientes').innerText = countPendientes;
+
+            const isConfirmado = accion === 'confirmar';
+            if (isConfirmado) {
+                countConfirmadas++;
+                document.getElementById('count-confirmadas').innerText = countConfirmadas;
+            } else {
+                countRechazadas++;
+                document.getElementById('count-rechazadas').innerText = countRechazadas;
+            }
+
+            // Mostrar contenedor de procesadas
+            const sectionProcesadas = document.getElementById('section-procesadas');
+            sectionProcesadas.classList.remove('hidden');
+
+            // Crear tarjeta en procesadas
+            const listaProcesadas = document.getElementById('lista-procesadas');
+            const newCard = document.createElement('div');
+            newCard.className = `bg-white rounded-xl shadow-md border-2 p-6 ${isConfirmado ? 'border-green-200' : 'border-red-200'}`;
+            newCard.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-person text-primary text-2xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold text-foreground">${estudiante}</h3>
+                            <span class="px-3 py-1 rounded-full text-sm font-medium ${isConfirmado ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                                ${isConfirmado ? 'Confirmado' : 'Rechazado'}
+                            </span>
+                        </div>
+                        <p class="text-sm text-muted-foreground">
+                            ${clase} - ${fecha}
+                        </p>
+                    </div>
+                </div>
+            `;
+            listaProcesadas.appendChild(newCard);
+
+            // Si ya no quedan pendientes, ocultar la sección de pendientes
+            if (countPendientes === 0) {
+                document.getElementById('section-pendientes').classList.add('hidden');
+            }
+        }
+    </script>
+}

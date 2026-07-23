@@ -1,0 +1,127 @@
+﻿@{
+    ViewData["Title"] = "Login Docente";
+    Layout = "_AuthLayout";
+}
+
+<div class="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-blue-50 to-white">
+    <div class="w-full max-w-md">
+
+        <a href="/Account/LoginSelection" class="inline-flex items-center gap-2 text-primary hover:underline mb-6">
+            <i class="bi bi-arrow-left" style="font-size: 1rem;"></i>
+            Volver a selección
+        </a>
+
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-border">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <i class="bi bi-people text-primary" style="font-size: 2rem;"></i>
+                </div>
+                <h1 class="text-foreground mb-2">Bienvenido, Docente</h1>
+                <p class="text-muted-foreground">Inicia sesión para gestionar tus clases</p>
+            </div>
+
+            <div id="login-error" class="hidden mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm"></div>
+
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label for="email" class="block text-foreground mb-2">Correo Institucional</label>
+                    <div class="relative">
+                        <i class="bi bi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
+                        <input id="email"
+                               type="email"
+                               placeholder="docente@correo.itm.edu.co"
+                               class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                               required />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-foreground mb-2">Contraseña</label>
+                    <div class="relative">
+                        <i class="bi bi-lock absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
+                        <input id="password"
+                               type="password"
+                               placeholder="••••••••"
+                               class="w-full pl-12 pr-12 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                               required />
+                        <button type="button" id="toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                            <i class="bi bi-eye" id="icon-eye"></i>
+                            <i class="bi bi-eye-slash hidden" id="icon-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" class="w-4 h-4 rounded border-input text-primary focus:ring-2 focus:ring-ring" />
+                        <span class="text-sm text-muted-foreground">Recordarme</span>
+                    </label>
+                    <a href="/Account/ForgotPassword" class="text-sm text-primary hover:underline">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" id="submit-button" class="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors">
+                    Continuar
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('toggle-password');
+            const passwordInput = document.getElementById('password');
+            const iconEye = document.getElementById('icon-eye');
+            const iconEyeSlash = document.getElementById('icon-eye-slash');
+
+            toggleBtn.addEventListener('click', function () {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                iconEye.classList.toggle('hidden');
+                iconEyeSlash.classList.toggle('hidden');
+            });
+
+            const form = document.getElementById('login-form');
+            const errorBox = document.getElementById('login-error');
+            const submitButton = document.getElementById('submit-button');
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                errorBox.classList.add('hidden');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Ingresando...';
+
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: document.getElementById('email').value,
+                            password: document.getElementById('password').value
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.isSuccess) {
+                        localStorage.setItem('token', data.result.token);
+                        localStorage.setItem('userName', data.result.userName);
+                        localStorage.setItem('role', data.result.role);
+                        window.location.href = '/Account/LoginExitoso';
+                    } else {
+                        errorBox.textContent = data.message || 'Credenciales inválidas';
+                        errorBox.classList.remove('hidden');
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Continuar';
+                    }
+                } catch (err) {
+                    errorBox.textContent = 'Error de conexión. Intenta de nuevo.';
+                    errorBox.classList.remove('hidden');
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Continuar';
+                }
+            });
+        });
+    </script>
+}

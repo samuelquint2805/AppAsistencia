@@ -1,0 +1,163 @@
+﻿@{
+    ViewData["Title"] = "Reportes y Estadísticas";
+
+    // Estructura de datos simulada en C# para cursos
+    var asistenciaCursos = new[]
+    {
+        new { Curso = "Programación I", Porcentaje = 92 },
+        new { Curso = "Base de Datos", Porcentaje = 88 },
+        new { Curso = "Algoritmos", Porcentaje = 85 },
+        new { Curso = "Cálculo", Porcentaje = 81 },
+        new { Curso = "Física", Porcentaje = 79 }
+    };
+
+    // Estructura de datos simulada en C# para métodos de registro
+    var metodosRegistro = new[]
+    {
+        new { Metodo = "NFC", Cantidad = 1240, Color = "bg-blue-600" },
+        new { Metodo = "BLE", Cantidad = 856, Color = "bg-purple-600" },
+        new { Metodo = "Biométrico", Cantidad = 423, Color = "bg-green-600" }
+    };
+
+    int totalRegistros = metodosRegistro.Sum(m => m.Cantidad);
+}
+
+<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Reportes y Estadísticas</h1>
+        <p class="text-muted-foreground">Analiza los datos de asistencia del sistema</p>
+    </div>
+
+    <!-- Filtros de Búsqueda -->
+    <div class="bg-white rounded-xl shadow-md border border-border p-6 mb-8">
+        <div class="flex items-center gap-3 mb-6">
+            <i class="bi bi-funnel text-primary text-xl"></i>
+            <h3 class="text-lg font-bold text-foreground">Filtros</h3>
+        </div>
+        
+        <form asp-controller="Reportes" asp-action="Index" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <select name="curso" class="px-4 py-2 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium">
+                <option value="">Todos los cursos</option>
+                <option value="Programación I">Programación I</option>
+                <option value="Base de Datos">Base de Datos</option>
+                <option value="Algoritmos">Algoritmos</option>
+            </select>
+
+            <input type="date" name="fechaInicio" class="px-4 py-2 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium" />
+            
+            <input type="date" name="fechaFin" class="px-4 py-2 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium" />
+
+            <button type="submit" class="bg-primary text-primary-foreground font-medium px-6 py-2 rounded-lg hover:bg-secondary transition-colors shadow">
+                Aplicar Filtros
+            </button>
+        </form>
+    </div>
+
+    <!-- Tarjetas Métricas con Degradados -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        
+        <!-- Total Estudiantes -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-lg">Total Estudiantes</h3>
+                <i class="bi bi-graph-up-arrow text-2xl opacity-80"></i>
+            </div>
+            <p class="text-4xl font-bold mb-2">847</p>
+            <p class="text-sm opacity-80">+12% vs mes anterior</p>
+        </div>
+
+        <!-- Promedio Asistencia -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-lg">Promedio Asistencia</h3>
+                <i class="bi bi-bar-chart-line text-2xl opacity-80"></i>
+            </div>
+            <p class="text-4xl font-bold mb-2">87.3%</p>
+            <p class="text-sm opacity-80">Dentro del objetivo</p>
+        </div>
+
+        <!-- Alertas Activas -->
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-lg">Alertas Activas</h3>
+                <i class="bi bi-exclamation-triangle text-2xl opacity-80"></i>
+            </div>
+            <p class="text-4xl font-bold mb-2">23</p>
+            <p class="text-sm opacity-80">Estudiantes bajo 80%</p>
+        </div>
+
+    </div>
+
+    <!-- Gráficos de Barras de Progreso -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        
+        <!-- Asistencia por Curso -->
+        <div class="bg-white rounded-xl shadow-md border border-border p-6">
+            <h3 class="text-lg font-bold text-foreground mb-4">Asistencia por Curso</h3>
+            <div class="space-y-4">
+                @foreach (var item in asistenciaCursos)
+                {
+                    string barColor = item.Porcentaje >= 80 ? "bg-green-600" : "bg-red-600";
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-foreground">@item.Curso</span>
+                            <span class="text-sm text-muted-foreground font-semibold">@item.Porcentaje%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                            <div class="h-2.5 rounded-full @barColor transition-all duration-500"
+                                 style="width: @item.Porcentaje%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Métodos de Registro -->
+        <div class="bg-white rounded-xl shadow-md border border-border p-6">
+            <h3 class="text-lg font-bold text-foreground mb-4">Métodos de Registro</h3>
+            <div class="space-y-4">
+                @foreach (var item in metodosRegistro)
+                {
+                    double porcentajeCalculado = ((double)item.Cantidad / totalRegistros) * 100;
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-foreground">@item.Metodo</span>
+                            <span class="text-sm text-muted-foreground font-semibold">@item.Cantidad registros</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                            <div class="h-2.5 rounded-full @item.Color transition-all duration-500"
+                                 style="width: @porcentajeCalculado.ToString("F0")%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Exportar Reportes -->
+    <div class="bg-white rounded-xl shadow-md border border-border p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-foreground">Exportar Reportes</h3>
+            <i class="bi bi-download text-primary text-xl"></i>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a asp-controller="Reportes" asp-action="ExportarCsv"
+               class="px-6 py-3 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-colors text-center shadow-sm text-decoration-none">
+                <i class="bi bi-filetype-csv mr-2"></i> Exportar CSV
+            </a>
+            <a asp-controller="Reportes" asp-action="ExportarExcel"
+               class="px-6 py-3 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-colors text-center shadow-sm text-decoration-none">
+                <i class="bi bi-file-earmark-excel mr-2"></i> Exportar Excel
+            </a>
+            <a asp-controller="Reportes" asp-action="ExportarPdf"
+               class="px-6 py-3 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-colors text-center shadow-sm text-decoration-none">
+                <i class="bi bi-file-earmark-pdf mr-2"></i> Exportar PDF
+            </a>
+        </div>
+    </div>
+
+</div>

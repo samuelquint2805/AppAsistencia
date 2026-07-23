@@ -1,0 +1,283 @@
+﻿@{
+    ViewData["Title"] = "Crear Cuenta";
+}
+
+<div class="w-full min-h-[calc(100vh-5rem)] flex items-center justify-center px-4 py-8 bg-gradient-to-br from-blue-50 to-white">
+    <div class="w-full max-w-2xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-border">
+            
+            <!-- Encabezado -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-foreground mb-2">Crear Cuenta</h1>
+                <p class="text-muted-foreground">Regístrate en el Sistema de Control de Asistencia ITM</p>
+            </div>
+
+            <form asp-controller="Account" asp-action="Register" method="post" class="space-y-6">
+                @Html.AntiForgeryToken()
+
+                <!-- Seleccionar Tipo de Usuario -->
+                <div>
+                    <label for="userType" class="block text-foreground mb-2 font-medium">
+                        Tipo de Usuario
+                    </label>
+                    <select id="userType"
+                            name="userType"
+                            onchange="toggleUserFields()"
+                            class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium"
+                            required>
+                        <option value="estudiante">Estudiante</option>
+                        <option value="docente">Docente</option>
+                    </select>
+                </div>
+
+                <!-- CAMPOS COMUNES: Nombre Completo y Código Institucional -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="name" class="block text-foreground mb-2 font-medium">
+                            Nombre Completo
+                        </label>
+                        <div class="relative">
+                            <i class="bi bi-person absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
+                            <input id="name"
+                                   name="name"
+                                   type="text"
+                                   placeholder="Ej: Juan Pérez"
+                                   class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                                   required />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="institutionalCode" class="block text-foreground mb-2 font-medium">
+                            Código Institucional
+                        </label>
+                        <div class="relative">
+                            <i class="bi bi-card-heading absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
+                            <input id="institutionalCode"
+                                   name="institutionalCode"
+                                   type="text"
+                                   placeholder="Ej: ITM-12345"
+                                   class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                                   required />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CAMPO COMÚN: Correo Institucional -->
+                <div>
+                    <label for="email" class="block text-foreground mb-2 font-medium">
+                        Correo Institucional
+                    </label>
+                    <div class="relative">
+                        <i class="bi bi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
+                        <input id="email"
+                               name="email"
+                               type="email"
+                               placeholder="usuario@itm.edu.co"
+                               class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                               required />
+                    </div>
+                </div>
+
+                <!-- SECCIÓN DINÁMICA: CAMPOS PARA ESTUDIANTE -->
+                <div id="studentFields" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="studentCard" class="block text-foreground mb-2 font-medium">
+                                Carnet Estudiantil
+                            </label>
+                            <div class="relative">
+                                <i class="bi bi-person-badge absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
+                                <input id="studentCard"
+                                       name="studentCard"
+                                       type="text"
+                                       placeholder="Carnet EST"
+                                       class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="studentPhone" class="block text-foreground mb-2 font-medium">
+                                Teléfono
+                            </label>
+                            <div class="relative">
+                                <i class="bi bi-telephone absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
+                                <input id="studentPhone"
+                                       name="studentPhone"
+                                       type="tel"
+                                       placeholder="3001234567"
+                                       class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="currentSemester" class="block text-foreground mb-2 font-medium">
+                                Semestre Cursado
+                            </label>
+                            <select id="currentSemester"
+                                    name="currentSemester"
+                                    class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                                <option value="">Seleccionar...</option>
+                                @for (int i = 1; i <= 10; i++)
+                                {
+                                    <option value="@i">Semestre @i</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN DINÁMICA: CAMPOS PARA DOCENTE (Oculto por defecto) -->
+                <div id="teacherFields" class="space-y-6 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="teacherCard" class="block text-foreground mb-2 font-medium">
+                                Carnet Docente
+                            </label>
+                            <div class="relative">
+                                <i class="bi bi-person-badge-fill absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
+                                <input id="teacherCard"
+                                       name="teacherCard"
+                                       type="text"
+                                       placeholder="Carnet DOC"
+                                       class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="teacherPhone" class="block text-foreground mb-2 font-medium">
+                                Teléfono
+                            </label>
+                            <div class="relative">
+                                <i class="bi bi-telephone absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
+                                <input id="teacherPhone"
+                                       name="teacherPhone"
+                                       type="tel"
+                                       placeholder="3001234567"
+                                       class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="department" class="block text-foreground mb-2 font-medium">
+                                Departamento
+                            </label>
+                            <select id="department"
+                                    name="department"
+                                    class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                                <option value="">Seleccionar departamento...</option>
+                                <option value="Sistemas e Informática">Facultad de Ingenierías - Sistemas</option>
+                                <option value="Electrónica y Telecomunicaciones">Electrónica y Telecomunicaciones</option>
+                                <option value="Ciencias Exactas y Aplicadas">Ciencias Exactas y Aplicadas</option>
+                                <option value="Artes y Humanidades">Artes y Humanidades</option>
+                                <!-- Puedes agregar más opciones en el futuro aquí -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CAMPOS COMUNES: Contraseñas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="password" class="block text-foreground mb-2 font-medium">
+                            Contraseña
+                        </label>
+                        <div class="relative">
+                            <i class="bi bi-lock absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
+                            <input id="password"
+                                   name="password"
+                                   type="password"
+                                   class="w-full pl-12 pr-12 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                                   required />
+                            <button type="button"
+                                    onclick="togglePassword('password', 'eyeIcon1')"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                                <i id="eyeIcon1" class="bi bi-eye text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="confirmPassword" class="block text-foreground mb-2 font-medium">
+                            Confirmar Contraseña
+                        </label>
+                        <div class="relative">
+                            <i class="bi bi-lock absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
+                            <input id="confirmPassword"
+                                   name="confirmPassword"
+                                   type="password"
+                                   class="w-full pl-12 pr-12 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                                   required />
+                            <button type="button"
+                                    onclick="togglePassword('confirmPassword', 'eyeIcon2')"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                                <i id="eyeIcon2" class="bi bi-eye text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Términos -->
+                <div class="flex items-center gap-2">
+                    <input id="terms"
+                           type="checkbox"
+                           class="w-4 h-4 rounded border-input text-primary focus:ring-2 focus:ring-ring"
+                           required />
+                    <label for="terms" class="text-sm text-muted-foreground">
+                        Acepto los términos y condiciones y la política de privacidad
+                    </label>
+                </div>
+
+                <!-- Botón Enviar -->
+                <button type="submit"
+                        class="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors font-medium">
+                    Crear Cuenta
+                </button>
+
+                <!-- Link a Login -->
+                <div class="text-center text-sm text-muted-foreground">
+                    ¿Ya tienes cuenta?
+                    <a asp-controller="Account" asp-action="LoginSelection" class="text-primary hover:underline font-medium ml-1">
+                        Inicia sesión aquí
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Función para cambiar visibilidad de campos según Rol
+        function toggleUserFields() {
+            const userType = document.getElementById('userType').value;
+            const studentFields = document.getElementById('studentFields');
+            const teacherFields = document.getElementById('teacherFields');
+
+            if (userType === 'estudiante') {
+                studentFields.classList.remove('hidden');
+                teacherFields.classList.add('hidden');
+            } else if (userType === 'docente') {
+                teacherFields.classList.remove('hidden');
+                studentFields.classList.add('hidden');
+            }
+        }
+
+        // Función ver/ocultar contraseña
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+    </script>
+}

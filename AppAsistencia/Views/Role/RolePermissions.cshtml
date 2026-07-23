@@ -1,0 +1,288 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Permisos (RBAC)";
+}
+
+<div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <i class="bi bi-shield-lock-fill text-primary text-xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-foreground">Gestión de Permisos</h1>
+        </div>
+        <p class="text-muted-foreground ml-13">
+            Configura las secciones y acciones disponibles para cada rol del sistema
+        </p>
+    </div>
+
+    <!-- Selector de Rol -->
+    <div class="bg-white rounded-2xl shadow-sm border border-border p-6 mb-6">
+        <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">
+            Rol a configurar
+        </p>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <!-- Rol Docente -->
+            <button type="button"
+                    id="btn-rol-docente"
+                    onclick="seleccionarRol('docente')"
+                    class="rol-btn relative py-4 px-6 rounded-xl border-2 transition-all text-left border-primary bg-blue-50/50 shadow-sm">
+                <span class="block text-base font-bold text-primary mb-0.5">Docente</span>
+                <span class="text-xs text-muted-foreground">Profesores y coordinadores académicos</span>
+                <span id="dot-docente" class="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-primary"></span>
+            </button>
+
+            <!-- Rol Estudiante -->
+            <button type="button"
+                    id="btn-rol-estudiante"
+                    onclick="seleccionarRol('estudiante')"
+                    class="rol-btn relative py-4 px-6 rounded-xl border-2 transition-all text-left border-border bg-white hover:border-primary/40">
+                <span class="block text-base font-bold text-foreground mb-0.5">Estudiante</span>
+                <span class="text-xs text-muted-foreground">Alumnos matriculados en el semestre</span>
+                <span id="dot-estudiante" class="hidden absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-primary"></span>
+            </button>
+
+        </div>
+
+        <!-- Barra de Estadísticas de Módulos -->
+        <div class="mt-4 pt-4 border-t border-border flex gap-6 text-sm text-muted-foreground">
+            <span>
+                <strong id="stat-activas" class="text-foreground font-bold">0</strong> secciones activas
+            </span>
+            <span>
+                <strong id="stat-desactivadas" class="text-foreground font-bold">0</strong> desactivadas
+            </span>
+        </div>
+    </div>
+
+    <!-- Formulario para Guardar en C# -->
+    <form asp-controller="RoleManagement" asp-action="SavePermissions" method="post" id="permisosForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="input-rol" name="roleName" value="docente" />
+
+        <!-- Lista de Secciones y Módulos -->
+        <div id="contenedor-secciones" class="space-y-3 mb-6">
+            <!-- Se llena dinámicamente con JavaScript -->
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex gap-3">
+            <button type="button"
+                    id="btn-guardar"
+                    onclick="guardarPermisos()"
+                    class="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow hover:bg-secondary">
+                <i class="bi bi-floppy text-lg"></i>
+                <span id="txt-guardar">Guardar permisos del Docente</span>
+            </button>
+
+            <button type="button"
+                    onclick="restaurarValores()"
+                    class="px-5 py-3 border-2 border-border rounded-xl hover:bg-blue-50 text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 font-medium"
+                    title="Restaurar valores por defecto">
+                <i class="bi bi-arrow-counterclockwise text-lg"></i>
+                <span class="hidden sm:inline">Restaurar</span>
+            </button>
+        </div>
+    </form>
+
+</div>
+
+@section Scripts {
+    <script>
+        // Datos base de las secciones del sistema
+        const seccionesBase = [
+            { id: "registro-asistencia", nombre: "Registro de Asistencia", descripcion: "Acceso a los métodos de registro (NFC, BLE, biométrico)" },
+            { id: "registro-manual", nombre: "Registro Manual de Asistencia", descripcion: "Registro de asistencia de forma manual con selección de clase" },
+            { id: "confirmar-asistencias", nombre: "Confirmación de Asistencias", descripcion: "Revisión y aprobación de asistencias manuales pendientes" },
+            { id: "ver-faltas", nombre: "Ver Faltas", descripcion: "Consulta del historial de faltas y porcentaje de asistencia" },
+            { id: "historial-clases", nombre: "Historial de Clases", descripcion: "Acceso al historial completo de clases del período académico" },
+            { id: "registrar-clase", nombre: "Registrar Clase", descripcion: "Creación y configuración de nuevas sesiones de clase" },
+            { id: "reportes", nombre: "Reportes", descripcion: "Generación y exportación de informes de asistencia" },
+            { id: "notificaciones", nombre: "Notificaciones", descripcion: "Gestión de alertas y avisos del sistema" },
+            { id: "configuracion", nombre: "Configuración", descripcion: "Personalización de perfil, métodos de registro y privacidad" }
+        ];
+
+        // Configuración por defecto para Docente
+        let permisosDocente = seccionesBase.map(s => {
+            if (["confirmar-asistencias", "registrar-clase", "reportes"].includes(s.id)) {
+                return { ...s, activa: true, permisos: { ver: true, crear: true, editar: true, eliminar: false }, expandida: true };
+            }
+            if (["registro-manual", "ver-faltas", "historial-clases"].includes(s.id)) {
+                return { ...s, activa: true, permisos: { ver: true, crear: false, editar: false, eliminar: false }, expandida: false };
+            }
+            return { ...s, activa: true, permisos: { ver: true, crear: true, editar: false, eliminar: false }, expandida: false };
+        });
+
+        // Configuración por defecto para Estudiante
+        let permisosEstudiante = seccionesBase.map(s => {
+            if (["confirmar-asistencias", "registrar-clase", "reportes"].includes(s.id)) {
+                return { ...s, activa: false, permisos: { ver: false, crear: false, editar: false, eliminar: false }, expandida: false };
+            }
+            return { ...s, activa: true, permisos: { ver: true, crear: true, editar: false, eliminar: false }, expandida: false };
+        });
+
+        let rolActual = "docente";
+
+        // Cambiar entre rol Docente / Estudiante
+        function seleccionarRol(rol) {
+            rolActual = rol;
+            document.getElementById('input-rol').value = rol;
+
+            const btnDocente = document.getElementById('btn-rol-docente');
+            const btnEstudiante = document.getElementById('btn-rol-estudiante');
+            const dotDocente = document.getElementById('dot-docente');
+            const dotEstudiante = document.getElementById('dot-estudiante');
+            const txtGuardar = document.getElementById('txt-guardar');
+
+            if (rol === 'docente') {
+                btnDocente.className = "rol-btn relative py-4 px-6 rounded-xl border-2 transition-all text-left border-primary bg-blue-50/50 shadow-sm";
+                btnEstudiante.className = "rol-btn relative py-4 px-6 rounded-xl border-2 transition-all text-left border-border bg-white hover:border-primary/40";
+                dotDocente.classList.remove('hidden');
+                dotEstudiante.classList.add('hidden');
+                txtGuardar.innerText = "Guardar permisos del Docente";
+            } else {
+                btnEstudiante.className = "rol-btn relative py-4 px-6 rounded-xl border-2 transition-all text-left border-primary bg-blue-50/50 shadow-sm";
+                btnDocente.className = "rol-btn relative py-4 px-6 rounded-xl border-2 transition-all text-left border-border bg-white hover:border-primary/40";
+                dotEstudiante.classList.remove('hidden');
+                dotDocente.classList.add('hidden');
+                txtGuardar.innerText = "Guardar permisos del Estudiante";
+            }
+
+            renderizarSecciones();
+        }
+
+        function getSeccionesActuales() {
+            return rolActual === 'docente' ? permisosDocente : permisosEstudiante;
+        }
+
+        // Renderizar dinámicamente la lista de permisos
+        function renderizarSecciones() {
+            const lista = getSeccionesActuales();
+            const contenedor = document.getElementById('contenedor-secciones');
+            contenedor.innerHTML = '';
+
+            let activas = 0;
+
+            lista.forEach((seccion, index) => {
+                if (seccion.activa) activas++;
+
+                const permisosActivos = Object.entries(seccion.permisos)
+                    .filter(([, val]) => val)
+                    .map(([key]) => key);
+
+                const item = document.createElement('div');
+                item.className = `bg-white rounded-2xl border-2 transition-all shadow-sm ${seccion.activa ? 'border-border' : 'border-border/50 opacity-75'}`;
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-4 p-5">
+                        <!-- Switch Toggle Activa -->
+                        <label class="relative inline-block w-12 h-6 cursor-pointer flex-shrink-0">
+                            <input type="checkbox" ${seccion.activa ? 'checked' : ''} onchange="toggleActiva(${index}, this.checked)" class="sr-only peer" />
+                            <span class="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors"></span>
+                            <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6 shadow-sm"></span>
+                        </label>
+
+                        <!-- Info del Módulo -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-foreground text-base">${seccion.nombre}</span>
+                                ${seccion.activa && permisosActivos.length > 0 ? `
+                                    <div class="flex gap-1 flex-wrap">
+                                        ${permisosActivos.map(p => `<span class="text-[10px] uppercase tracking-wider px-2 py-0.5 bg-blue-100 text-primary rounded-full font-bold">${p}</span>`).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <p class="text-xs text-muted-foreground mt-0.5 truncate">${seccion.descripcion}</p>
+                        </div>
+
+                        <!-- Botón Expandir/Colapsar -->
+                        ${seccion.activa ? `
+                            <button type="button" onclick="toggleExpandir(${index})" class="p-2 rounded-lg hover:bg-blue-50 text-muted-foreground hover:text-primary transition-colors">
+                                <i class="bi ${seccion.expandida ? 'bi-chevron-up' : 'bi-chevron-down'} text-base"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    <!-- Panel de Permisos CRUD -->
+                    ${seccion.activa && seccion.expandida ? `
+                        <div class="px-5 pb-5 border-t border-border/60">
+                            <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-4 mb-3">Acciones permitidas</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                ${['ver', 'crear', 'editar', 'eliminar'].map(key => `
+                                    <div onclick="togglePermiso(${index}, '${key}')"
+                                         class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all cursor-pointer select-none ${seccion.permisos[key] ? 'border-primary/50 bg-blue-50/50' : 'border-border bg-gray-50 hover:bg-blue-50/30'}">
+                                        <span class="w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${seccion.permisos[key] ? 'bg-primary border-primary' : 'bg-white border-gray-300'}">
+                                            ${seccion.permisos[key] ? '<i class="bi bi-check text-white text-lg"></i>' : ''}
+                                        </span>
+                                        <span class="text-xs font-bold capitalize ${seccion.permisos[key] ? 'text-primary' : 'text-muted-foreground'}">${key}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+
+                contenedor.appendChild(item);
+            });
+
+            // Actualizar estadísticas
+            document.getElementById('stat-activas').innerText = activas;
+            document.getElementById('stat-desactivadas').innerText = lista.length - activas;
+        }
+
+        function toggleActiva(index, checked) {
+            const lista = getSeccionesActuales();
+            lista[index].activa = checked;
+            if (!checked) {
+                lista[index].permisos = { ver: false, crear: false, editar: false, eliminar: false };
+                lista[index].expandida = false;
+            } else {
+                lista[index].expandida = true;
+                lista[index].permisos.ver = true;
+            }
+            renderizarSecciones();
+        }
+
+        function toggleExpandir(index) {
+            const lista = getSeccionesActuales();
+            lista[index].expandida = !lista[index].expandida;
+            renderizarSecciones();
+        }
+
+        function togglePermiso(index, key) {
+            const lista = getSeccionesActuales();
+            lista[index].permisos[key] = !lista[index].permisos[key];
+            renderizarSecciones();
+        }
+
+        function restaurarValores() {
+            if (confirm('¿Deseas restaurar la configuración por defecto para este rol?')) {
+                if (rolActual === 'docente') {
+                    permisosDocente = seccionesBase.map(s => ({ ...s, activa: true, permisos: { ver: true, crear: true, editar: true, eliminar: false }, expandida: false }));
+                } else {
+                    permisosEstudiante = seccionesBase.map(s => ({ ...s, activa: true, permisos: { ver: true, crear: false, editar: false, eliminar: false }, expandida: false }));
+                }
+                renderizarSecciones();
+            }
+        }
+
+        function guardarPermisos() {
+            const btn = document.getElementById('btn-guardar');
+            const txt = document.getElementById('txt-guardar');
+
+            btn.className = "flex-1 py-3 bg-green-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow";
+            btn.innerHTML = `<i class="bi bi-check-circle text-lg"></i> Cambios guardados correctamente`;
+
+            setTimeout(() => {
+                btn.className = "flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow hover:bg-secondary";
+                btn.innerHTML = `<i class="bi bi-floppy text-lg"></i> <span id="txt-guardar">${rolActual === 'docente' ? 'Guardar permisos del Docente' : 'Guardar permisos del Estudiante'}</span>`;
+            }, 2500);
+        }
+
+        // Cargar vista inicial
+        renderizarSecciones();
+    </script>
+}

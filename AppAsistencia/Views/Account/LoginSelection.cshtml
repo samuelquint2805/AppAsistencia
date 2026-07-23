@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Selección de Login";
+    Layout = "_AuthLayout";
+}
+
+<div class="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-blue-50 to-white">
+    <div class="w-full max-w-4xl">
+
+        <div class="text-center mb-12">
+            <h1 class="text-foreground mb-2">Sistema de Control de Asistencia</h1>
+            <p class="text-muted-foreground">Selecciona tu tipo de usuario para continuar</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <a href="/Account/LoginEstudiante" class="bg-white rounded-2xl shadow-xl p-8 border-2 border-border hover:border-primary transition-all hover:shadow-2xl group">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-6 group-hover:bg-primary group-hover:scale-110 transition-all">
+                        <i class="bi bi-mortarboard text-primary group-hover:text-white transition-colors" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="text-foreground mb-3">Estudiante</h2>
+                    <p class="text-muted-foreground">
+                        Accede para registrar tu asistencia y consultar tu historial de clases
+                    </p>
+                </div>
+            </a>
+
+            <a href="/Account/LoginDocente" class="bg-white rounded-2xl shadow-xl p-8 border-2 border-border hover:border-primary transition-all hover:shadow-2xl group">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-6 group-hover:bg-primary group-hover:scale-110 transition-all">
+                        <i class="bi bi-people text-primary group-hover:text-white transition-colors" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="text-foreground mb-3">Docente</h2>
+                    <p class="text-muted-foreground">
+                        Accede para gestionar clases, confirmar asistencias y generar reportes
+                    </p>
+                </div>
+            </a>
+
+        </div>
+    </div>
+</div>

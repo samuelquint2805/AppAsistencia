@@ -1,0 +1,152 @@
+﻿@{
+    ViewData["Title"] = "Historial de Asistencia y Faltas";
+
+    // Estructura de datos simulada en C#
+    var asistencias = new[]
+    {
+        new { Fecha = "2026-04-28", Curso = "Programación I", Estado = "Presente", Metodo = "NFC" },
+        new { Fecha = "2026-04-28", Curso = "Base de Datos", Estado = "Tardanza", Metodo = "BLE" },
+        new { Fecha = "2026-04-27", Curso = "Programación I", Estado = "Presente", Metodo = "NFC" },
+        new { Fecha = "2026-04-27", Curso = "Algoritmos", Estado = "Ausente", Metodo = "-" },
+        new { Fecha = "2026-04-26", Curso = "Base de Datos", Estado = "Presente", Metodo = "Biométrico" },
+        new { Fecha = "2026-04-26", Curso = "Cálculo", Estado = "Presente", Metodo = "NFC" },
+        new { Fecha = "2026-04-25", Curso = "Programación I", Estado = "Tardanza", Metodo = "BLE" },
+        new { Fecha = "2026-04-25", Curso = "Algoritmos", Estado = "Presente", Metodo = "NFC" }
+    };
+
+    // Estadísticas calculadas en C#
+    var estadisticas = new
+    {
+        TotalClases = 32,
+        Presentes = 26,
+        Tardanzas = 3,
+        Ausencias = 3,
+        Porcentaje = 81.25
+    };
+
+    bool esAprobado = estadisticas.Porcentaje >= 80.0;
+}
+
+<div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Historial de Asistencia</h1>
+        <p class="text-muted-foreground">Consulta tu registro de asistencias y faltas</p>
+    </div>
+
+    <!-- Múltiples Tarjetas Métricas -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        
+        <!-- Total Clases -->
+        <div class="bg-white rounded-xl shadow-md border border-border p-6">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="bi bi-calendar3 text-primary text-xl"></i>
+                <h3 class="text-muted-foreground font-medium">Total Clases</h3>
+            </div>
+            <p class="text-3xl font-bold text-foreground">@estadisticas.TotalClases</p>
+        </div>
+
+        <!-- Presentes -->
+        <div class="bg-white rounded-xl shadow-md border border-border p-6">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="bi bi-check-circle-fill text-green-600 text-xl"></i>
+                <h3 class="text-muted-foreground font-medium">Presentes</h3>
+            </div>
+            <p class="text-3xl font-bold text-green-600">@estadisticas.Presentes</p>
+        </div>
+
+        <!-- Tardanzas -->
+        <div class="bg-white rounded-xl shadow-md border border-border p-6">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="bi bi-clock-fill text-yellow-600 text-xl"></i>
+                <h3 class="text-muted-foreground font-medium">Tardanzas</h3>
+            </div>
+            <p class="text-3xl font-bold text-yellow-600">@estadisticas.Tardanzas</p>
+        </div>
+
+        <!-- Ausencias -->
+        <div class="bg-white rounded-xl shadow-md border border-border p-6">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="bi bi-exclamation-triangle-fill text-red-600 text-xl"></i>
+                <h3 class="text-muted-foreground font-medium">Ausencias</h3>
+            </div>
+            <p class="text-3xl font-bold text-red-600">@estadisticas.Ausencias</p>
+        </div>
+
+    </div>
+
+    <!-- Barra de Porcentaje de Asistencia -->
+    <div class="bg-white rounded-xl shadow-md border border-border p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-foreground">Porcentaje de Asistencia</h3>
+            <span class="text-2xl font-bold @(esAprobado ? "text-green-600" : "text-red-600")">
+                @estadisticas.Porcentaje.ToString("F2")%
+            </span>
+        </div>
+        
+        <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+            <div class="h-4 rounded-full transition-all duration-500 @(esAprobado ? "bg-green-600" : "bg-red-600")"
+                 style="width: @estadisticas.Porcentaje.ToString("F0")%"></div>
+        </div>
+
+        @if (!esAprobado)
+        {
+            <p class="text-sm font-medium text-red-600 mt-2 flex items-center gap-1">
+                <i class="bi bi-exclamation-octagon-fill"></i>
+                Tu asistencia está por debajo del 80% requerido
+            </p>
+        }
+    </div>
+
+    <!-- Tabla de Registro Detallado -->
+    <div class="bg-white rounded-xl shadow-md border border-border overflow-hidden">
+        <div class="p-6 border-b border-border">
+            <h3 class="text-lg font-bold text-foreground">Registro Detallado</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-100/70 border-b border-border">
+                    <tr>
+                        <th class="px-6 py-3 text-sm font-semibold text-foreground">Fecha</th>
+                        <th class="px-6 py-3 text-sm font-semibold text-foreground">Curso</th>
+                        <th class="px-6 py-3 text-sm font-semibold text-foreground">Estado</th>
+                        <th class="px-6 py-3 text-sm font-semibold text-foreground">Método</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    @foreach (var asistencia in asistencias)
+                    {
+                        string badgeBg = asistencia.Estado == "Presente" ? "text-green-700 bg-green-100" :
+                                         asistencia.Estado == "Tardanza" ? "text-yellow-700 bg-yellow-100" : "text-red-700 bg-red-100";
+
+                        string iconClass = asistencia.Estado == "Presente" ? "bi-check-circle-fill text-green-600" :
+                                           asistencia.Estado == "Tardanza" ? "bi-clock-fill text-yellow-600" : "bi-x-circle-fill text-red-600";
+
+                        <tr class="hover:bg-gray-50/80 transition-colors">
+                            <td class="px-6 py-4 text-sm text-muted-foreground font-medium">
+                                @DateTime.Parse(asistencia.Fecha).ToString("dd/MM/yyyy")
+                            </td>
+                            <td class="px-6 py-4 text-sm font-semibold text-foreground">
+                                @asistencia.Curso
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <i class="bi @iconClass text-base"></i>
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold @badgeBg">
+                                        @asistencia.Estado
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-muted-foreground font-medium">
+                                @asistencia.Metodo
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

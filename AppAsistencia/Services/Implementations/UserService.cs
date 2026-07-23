@@ -1,0 +1,267 @@
+﻿using AppAsistencia.Core;
+using AppAsistencia.Data.DBSET;
+using AppAsistencia.DTOs;
+using AppAsistencia.Models;
+using AppAsistencia.Services.Abstractions;
+using Microsoft.EntityFrameworkCore;
+
+namespace AppAsistencia.Services.Implementations
+{
+    public class UserService : IUserService
+    {
+        private readonly DataContextAsistencia _context;
+        private readonly IEmailSenderService _emailSender;
+        private const string DominioInstitucional = "@correo.itm.edu.co";
+
+        public UserService(DataContextAsistencia context, IEmailSenderService emailSender)
+        {
+            _context = context;
+            _emailSender = emailSender;
+        }
+
+        public async Task<Response<UserSummaryDTO>> RegistrarUsuarioAsync(RegisterDTO dto)
+        {
+            try
+            {
+                // 1. Regla de negocio: solo correos institucionales
+                if (!EsCorreoInstitucionalValido(dto.Email))
+                    return Response<UserSummaryDTO>.Failure(
+                        $"Solo se permiten correos institucionales terminados en {DominioInstitucional}");
+
+                // 2. Correo único
+                var yaExiste = await _context.Set<User>().AnyAsync(u => u.email == dto.Email);
+                if (yaExiste)
+                    return Response<UserSummaryDTO>.Failure("Ya existe un usuario registrado con este correo");
+
+                // 3. Resolver el rol solicitado contra ROLEMANAGEMENT
+                //    Ajusta "r.nombreRol" al nombre real de la propiedad en tu clase Role si difiere.
+                var roleName = dto.Role.ToString();
+                var role = await _context.Set<Role>().FirstOrDefaultAsync(r => r.nombreRol == roleName);
+                if (role is null)
+                    return Response<UserSummaryDTO>.Failure($"El rol '{roleName}' no está configurado en el sistema");
+
+                // 4. Validaciones específicas por rol antes de abrir la transacción
+                if (dto.Role == RoleType.Student && (string.IsNullOrWhiteSpace(dto.StudentIdCard) || dto.CurrentSemester is null))
+                    return Response<UserSummaryDTO>.Failure("studentIdCard y currentSemester son requeridos para el rol Student");
+
+                if (dto.Role == RoleType.Professor && (string.IsNullOrWhiteSpace(dto.ProfessorIdCard) || string.IsNullOrWhiteSpace(dto.Department)))
+                    return Response<UserSummaryDTO>.Failure("professorIdCard y department son requeridos para el rol Professor");
+
+                // 5. Transacción: el id del usuario se reutiliza como PK/FK compartida
+                //    en la tabla específica del rol.
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+
+                var idUser = Guid.NewGuid();
+
+                var user = new User
+                {
+                    idUser = idUser,
+                    institutionalCode = dto.InstitutionalCode,
+                    userName = dto.UserName,
+                    firstname = dto.FirstName,
+                    lastName = dto.LastName,
+                    email = dto.Email,
+                    passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                    isActive = true,
+                    isEmailConfirmed = false,
+                    registerDate = DateTime.UtcNow,
+                    accountRenewalDate = DateTime.UtcNow.AddYears(1),
+                    RoleID = role.idRol
+                };
+                _context.Add(user);
+
+                switch (dto.Role)
+                {
+                    case RoleType.Student:
+                        _context.Add(new Student
+                        {
+                            idStudent = idUser,
+                            studentIdCard = dto.StudentIdCard!,
+                            currentSemester = dto.CurrentSemester!.Value,
+                            phoneNumber = dto.PhoneNumber ?? 0
+                        });
+                        break;
+
+                    case RoleType.Professor:
+                        _context.Add(new Professor
+                        {
+                            idTeacher = idUser,
+                            professorIdCard = dto.ProfessorIdCard!,
+                            phoneNumber = dto.PhoneNumber ?? 0,
+                            department = dto.Department!,
+                            userId = idUser
+                        });
+                        break;
+
+                    case RoleType.Administrator:
+                        _context.Add(new Administrator
+                        {
+                            idAdmin = idUser,
+                            phoneMumber = dto.PhoneNumber ?? 0
+                        });
+                        break;
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                // 6. Envío de correo de confirmación (no revierte el registro si falla)
+                try
+                {
+                    var tokenResponse = await GenerarTokenConfirmacionAsync(idUser);
+                    if (tokenResponse.IsSuccess)
+                    {
+                        var link = $"https://tuapp.itm.edu.co/confirmar-email?id={idUser}&token={tokenResponse.Result}";
+                        await _emailSender.SendEmailAsync(
+                            user.email,
+                            "Confirma tu cuenta - AppAsistencia",
+                            $"<p>Hola {user.firstname}, confirma tu correo institucional haciendo clic <a href='{link}'>aquí</a>. El enlace expira en 24 horas.</p>");
+                    }
+                }
+                catch
+                {
+                    // El registro ya quedó guardado; el envío de correo se puede reintentar después.
+                }
+
+                var resultado = new UserSummaryDTO
+                {
+                    IdUser = user.idUser,
+                    UserName = user.userName,
+                    Email = user.email,
+                    Role = roleName,
+                    IsEmailConfirmed = user.isEmailConfirmed
+                };
+
+                return Response<UserSummaryDTO>.Success(resultado, "Usuario registrado con éxito");
+            }
+            catch (Exception ex)
+            {
+                return Response<UserSummaryDTO>.Failure(ex, "Ocurrió un error al registrar el usuario");
+            }
+        }
+
+        public async Task<Response<User>> ValidarCredencialesAsync(string email, string password)
+        {
+            try
+            {
+                var userResponse = await ObtenerPorEmailAsync(email);
+                if (!userResponse.IsSuccess || userResponse.Result is null)
+                    return Response<User>.Failure("Credenciales inválidas");
+
+                var user = userResponse.Result;
+
+                if (!user.isActive)
+                    return Response<User>.Failure("El usuario se encuentra inactivo");
+
+                var esValida = BCrypt.Net.BCrypt.Verify(password, user.passwordHash);
+                if (!esValida)
+                    return Response<User>.Failure("Credenciales inválidas");
+
+                return Response<User>.Success(user);
+            }
+            catch (Exception ex)
+            {
+                return Response<User>.Failure(ex, "Ocurrió un error al validar las credenciales");
+            }
+        }
+
+        public async Task<Response<User>> ObtenerPorEmailAsync(string email)
+        {
+            try
+            {
+                var user = await _context.Set<User>()
+                    .Include(u => u.roleFK)
+                    .FirstOrDefaultAsync(u => u.email == email);
+
+                return user is null
+                    ? Response<User>.Failure("Usuario no encontrado")
+                    : Response<User>.Success(user);
+            }
+            catch (Exception ex)
+            {
+                return Response<User>.Failure(ex, "Ocurrió un error al buscar el usuario");
+            }
+        }
+
+        public async Task<Response<bool>> CambiarEstadoUsuarioAsync(Guid idUser, bool activar)
+        {
+            try
+            {
+                var user = await _context.Set<User>().FindAsync(idUser);
+                if (user is null)
+                    return Response<bool>.Failure("Usuario no encontrado");
+
+                user.isActive = activar;
+                await _context.SaveChangesAsync();
+
+                return Response<bool>.Success(true, activar ? "Usuario activado" : "Usuario desactivado");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Failure(ex, "Ocurrió un error al cambiar el estado del usuario");
+            }
+        }
+
+        public Task<Response<bool>> ValidarEmailAsync(string email)
+        {
+            var esValido = EsCorreoInstitucionalValido(email);
+            var respuesta = esValido
+                ? Response<bool>.Success(true, "Correo institucional válido")
+                : Response<bool>.Failure($"Solo se permiten correos institucionales terminados en {DominioInstitucional}");
+
+            return Task.FromResult(respuesta);
+        }
+
+        public Task<Response<string>> GenerarTokenConfirmacionAsync(Guid idUser)
+        {
+            // Token sin estado: idUser + expiración codificados en base64.
+            // Para producción, considera firmarlo con HMAC usando una clave de configuración.
+            var payload = $"{idUser}|{DateTime.UtcNow.AddHours(24):O}";
+            var token = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload));
+            return Task.FromResult(Response<string>.Success(token));
+        }
+
+        public async Task<Response<bool>> ConfirmarEmailAsync(Guid idUser, string token)
+        {
+            try
+            {
+                string payload;
+                try
+                {
+                    payload = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(token));
+                }
+                catch
+                {
+                    return Response<bool>.Failure("Token de confirmación inválido");
+                }
+
+                var partes = payload.Split('|');
+                if (partes.Length != 2 || partes[0] != idUser.ToString())
+                    return Response<bool>.Failure("Token de confirmación inválido");
+
+                if (!DateTime.TryParse(partes[1], null, System.Globalization.DateTimeStyles.RoundtripKind, out var expiracion)
+                    || expiracion < DateTime.UtcNow)
+                    return Response<bool>.Failure("El token de confirmación ha expirado");
+
+                var user = await _context.Set<User>().FindAsync(idUser);
+                if (user is null)
+                    return Response<bool>.Failure("Usuario no encontrado");
+
+                user.isEmailConfirmed = true;
+                await _context.SaveChangesAsync();
+
+                return Response<bool>.Success(true, "Correo confirmado con éxito");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Failure(ex, "Ocurrió un error al confirmar el correo");
+            }
+        }
+
+        private static bool EsCorreoInstitucionalValido(string email)
+        {
+            return !string.IsNullOrWhiteSpace(email)
+                && email.Trim().EndsWith(DominioInstitucional, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+}

@@ -1,0 +1,135 @@
+﻿@{
+    ViewData["Title"] = "Notificaciones";
+
+    // Estructura de datos simulada en C#
+    var notificaciones = new[]
+    {
+        new { Id = 1, Tipo = "alerta", Titulo = "Asistencia Baja", Mensaje = "Tu porcentaje de asistencia en Programación I está por debajo del 80%", Fecha = "2026-05-01 10:30", Leido = false },
+        new { Id = 2, Tipo = "exito", Titulo = "Asistencia Registrada", Mensaje = "Tu asistencia para Base de Datos ha sido registrada exitosamente", Fecha = "2026-05-01 08:15", Leido = false },
+        new { Id = 3, Tipo = "info", Titulo = "Nueva Clase Programada", Mensaje = "Se ha programado una clase de Algoritmos para mañana a las 10:00 AM", Fecha = "2026-04-30 16:00", Leido = true },
+        new { Id = 4, Tipo = "alerta", Titulo = "Tardanza Registrada", Mensaje = "Llegaste 15 minutos tarde a la clase de Cálculo", Fecha = "2026-04-30 14:20", Leido = true },
+        new { Id = 5, Tipo = "info", Titulo = "Actualización del Sistema", Mensaje = "El sistema se actualizará el próximo lunes de 2:00 AM a 4:00 AM", Fecha = "2026-04-29 12:00", Leido = true }
+    };
+}
+
+<div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Notificaciones</h1>
+        <p class="text-muted-foreground">Centro de avisos y alertas del sistema</p>
+    </div>
+
+    <!-- Barra de Filtros y Acciones -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div class="flex gap-2">
+            <button id="btn-todas"
+                    onclick="filtrarNotificaciones('todas')"
+                    class="px-4 py-2 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-secondary transition-colors shadow-sm">
+                Todas
+            </button>
+            <button id="btn-no-leidas"
+                    onclick="filtrarNotificaciones('no-leidas')"
+                    class="px-4 py-2 bg-white border border-border text-foreground font-medium rounded-lg hover:bg-accent transition-colors shadow-sm">
+                No leídas
+            </button>
+        </div>
+        <button onclick="marcarTodasComoLeidas()"
+                class="text-primary font-medium hover:underline text-sm">
+            Marcar todas como leídas
+        </button>
+    </div>
+
+    <!-- Lista de Notificaciones -->
+    <div id="contenedor-notificaciones" class="space-y-4">
+        @foreach (var notif in notificaciones)
+        {
+            // Determinar clases según el tipo y estado de lectura
+            string bgClass = notif.Leido ? "bg-white" :
+                             notif.Tipo == "alerta" ? "bg-red-50/70 border-red-200" :
+                             notif.Tipo == "exito" ? "bg-green-50/70 border-green-200" : "bg-blue-50/70 border-blue-200";
+
+            string iconClass = notif.Tipo == "alerta" ? "bi-exclamation-circle text-red-600" :
+                               notif.Tipo == "exito" ? "bi-check-circle text-green-600" :
+                               notif.Tipo == "info" ? "bi-info-circle text-blue-600" : "bi-bell text-muted-foreground";
+
+            <div class="notif-item @(notif.Leido ? "leida" : "no-leida") @bgClass rounded-xl shadow-md border border-border p-6 transition-all hover:shadow-lg">
+                <div class="flex items-start gap-4">
+                    
+                    <!-- Ícono del tipo de notificación -->
+                    <div class="flex-shrink-0 mt-1">
+                        <i class="bi @iconClass text-2xl"></i>
+                    </div>
+
+                    <!-- Contenido -->
+                    <div class="flex-1">
+                        <div class="flex items-start justify-between mb-1">
+                            <h3 class="font-bold text-foreground text-base">@notif.Titulo</h3>
+                            
+                            <!-- Indicador de no leído -->
+                            <span class="dot-unread w-2.5 h-2.5 bg-primary rounded-full @(notif.Leido ? "hidden" : "")"></span>
+                        </div>
+                        
+                        <p class="text-sm text-muted-foreground mb-2 leading-relaxed">@notif.Mensaje</p>
+                        
+                        <p class="text-xs text-muted-foreground font-medium">
+                            <i class="bi bi-clock mr-1"></i>
+                            @DateTime.Parse(notif.Fecha).ToString("dd/MM/yyyy - hh:mm tt")
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Estado Vacío (Sin notificaciones) -->
+    @if (!notificaciones.Any())
+    {
+        <div class="text-center py-12 bg-white rounded-2xl shadow-md border border-border">
+            <i class="bi bi-bell text-5xl text-muted-foreground opacity-50 block mb-4"></i>
+            <h3 class="text-xl font-bold text-foreground mb-2">No hay notificaciones</h3>
+            <p class="text-muted-foreground">Todas tus notificaciones aparecerán aquí</p>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        // Filtrar entre "Todas" y "No leídas"
+        function filtrarNotificaciones(filtro) {
+            const items = document.querySelectorAll('.notif-item');
+            const btnTodas = document.getElementById('btn-todas');
+            const btnNoLeidas = document.getElementById('btn-no-leidas');
+
+            if (filtro === 'todas') {
+                items.forEach(item => item.classList.remove('hidden'));
+                btnTodas.className = 'px-4 py-2 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-secondary transition-colors shadow-sm';
+                btnNoLeidas.className = 'px-4 py-2 bg-white border border-border text-foreground font-medium rounded-lg hover:bg-accent transition-colors shadow-sm';
+            } else {
+                items.forEach(item => {
+                    if (item.classList.contains('no-leida')) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+                btnNoLeidas.className = 'px-4 py-2 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-secondary transition-colors shadow-sm';
+                btnTodas.className = 'px-4 py-2 bg-white border border-border text-foreground font-medium rounded-lg hover:bg-accent transition-colors shadow-sm';
+            }
+        }
+
+        // Marcar todas como leídas en el cliente
+        function marcarTodasComoLeidas() {
+            const unreadDots = document.querySelectorAll('.dot-unread');
+            const items = document.querySelectorAll('.notif-item');
+
+            unreadDots.forEach(dot => dot.classList.add('hidden'));
+            items.forEach(item => {
+                item.classList.remove('bg-red-50/70', 'bg-green-50/70', 'bg-blue-50/70', 'no-leida');
+                item.classList.add('bg-white', 'leida');
+            });
+        }
+    </script>
+}

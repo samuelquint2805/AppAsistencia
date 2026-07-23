@@ -1,0 +1,123 @@
+﻿@{
+    ViewData["Title"] = "Verificación 2FA";
+    string userEmail = ViewBag.UserEmail ?? "estudiante@itm.edu.co";
+}
+
+<div class="w-full min-h-[calc(100vh-5rem)] flex items-center justify-center px-4 py-8 bg-gradient-to-br from-blue-50 to-white">
+    <div class="w-full max-w-md mx-auto">
+        
+        <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-border">
+            
+            <!-- Encabezado -->
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <i class="bi bi-shield-lock text-primary text-3xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-foreground mb-2">Verificación de Seguridad</h1>
+                <p class="text-sm text-muted-foreground mb-4">
+                    Hemos enviado un código de 6 dígitos a tu correo
+                </p>
+                <div class="flex items-center justify-center gap-2 text-sm text-primary font-medium">
+                    <i class="bi bi-envelope"></i>
+                    <span>@userEmail</span>
+                </div>
+            </div>
+
+            <!-- Formulario de 6 Dígitos OTP -->
+            <form asp-controller="Account" asp-action="Verificar2FA" method="post" class="space-y-6">
+                @Html.AntiForgeryToken()
+
+                <div>
+                    <label class="block text-foreground mb-3 text-center font-medium">
+                        Ingresa el código de verificación
+                    </label>
+                    
+                    <!-- 6 Recuadros de entrada para el PIN -->
+                    <div class="flex gap-2 justify-center">
+                        @for (int i = 0; i < 6; i++)
+                        {
+                            <input id="codigo-@i"
+                                   name="otpDigits"
+                                   type="text"
+                                   inputmode="numeric"
+                                   maxlength="1"
+                                   oninput="handleInput(@i)"
+                                   onkeydown="handleKeyDown(@i, event)"
+                                   class="otp-input w-11 h-14 text-center text-2xl font-bold bg-input-background border-2 border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all"
+                                   required />
+                        }
+                    </div>
+                </div>
+
+                <!-- Botón de Envío (Deshabilitado hasta ingresar 6 dígitos) -->
+                <button id="btn-verificar"
+                        type="submit"
+                        disabled
+                        class="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors font-medium shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                    Verificar Código
+                </button>
+
+                <!-- Reenviar Código -->
+                <div class="text-center">
+                    <p class="text-sm text-muted-foreground mb-2">
+                        ¿No recibiste el código?
+                    </p>
+                    <button type="button"
+                            onclick="reenviarCodigo()"
+                            class="text-sm text-primary font-medium hover:underline">
+                        Reenviar código
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Nota al pie de página -->
+        <div class="mt-6 text-center text-sm text-muted-foreground">
+            <p><i class="bi bi-clock-history mr-1"></i> El código expira en 5 minutos</p>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function handleInput(index) {
+            const input = document.getElementById(`codigo-${index}`);
+            input.value = input.value.replace(/[^0-9]/g, ''); // Permitir solo números
+
+            if (input.value && index < 5) {
+                const nextInput = document.getElementById(`codigo-${index + 1}`);
+                nextInput.focus();
+            }
+
+            validarCodigoCompleto();
+        }
+
+        function handleKeyDown(index, event) {
+            if (event.key === 'Backspace') {
+                const input = document.getElementById(`codigo-${index}`);
+                if (!input.value && index > 0) {
+                    const prevInput = document.getElementById(`codigo-${index - 1}`);
+                    prevInput.focus();
+                }
+            }
+        }
+
+        function validarCodigoCompleto() {
+            const inputs = document.querySelectorAll('.otp-input');
+            let todosLlenos = true;
+
+            inputs.forEach(input => {
+                if (!input.value) todosLlenos = false;
+            });
+
+            const btnVerificar = document.getElementById('btn-verificar');
+            btnVerificar.disabled = !todosLlenos;
+        }
+
+        function reenviarCodigo() {
+            alert('Se ha reenviado un nuevo código de 6 dígitos a tu correo.');
+        }
+    </script>
+}

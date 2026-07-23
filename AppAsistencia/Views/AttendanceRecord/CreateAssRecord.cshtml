@@ -1,0 +1,157 @@
+﻿@{
+    ViewData["Title"] = "Registrar Asistencia";
+}
+
+<div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Registrar Asistencia</h1>
+        <p class="text-muted-foreground">Selecciona el método para marcar tu asistencia</p>
+    </div>
+
+    <!-- PANTALLA 1: Selección de Método -->
+    <div id="pantalla-seleccion">
+        
+        <!-- Opciones de Registro -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            
+            <!-- NFC -->
+            <button type="button"
+                    onclick="simularRegistro('NFC')"
+                    class="bg-white border-2 border-border hover:border-primary rounded-2xl p-8 transition-all hover:shadow-lg text-left group w-full">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="bi bi-broadcast text-primary text-4xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-foreground mb-2">NFC</h2>
+                    <p class="text-sm text-muted-foreground">Acerca tu tarjeta o teléfono al lector</p>
+                </div>
+            </button>
+
+            <!-- Bluetooth (BLE) -->
+            <button type="button"
+                    onclick="simularRegistro('BLUETOOTH (BLE)')"
+                    class="bg-white border-2 border-border hover:border-primary rounded-2xl p-8 transition-all hover:shadow-lg text-left group w-full">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="bi bi-bluetooth text-primary text-4xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-foreground mb-2">Bluetooth (BLE)</h2>
+                    <p class="text-sm text-muted-foreground">Detección automática por proximidad</p>
+                </div>
+            </button>
+
+            <!-- Biométrico -->
+            <button type="button"
+                    onclick="simularRegistro('BIOMÉTRICO')"
+                    class="bg-white border-2 border-border hover:border-primary rounded-2xl p-8 transition-all hover:shadow-lg text-left group w-full">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="bi bi-fingerprint text-primary text-4xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-foreground mb-2">Biométrico</h2>
+                    <p class="text-sm text-muted-foreground">Huella o reconocimiento facial</p>
+                </div>
+            </button>
+
+        </div>
+
+        <!-- Tarjeta de Registro Manual -->
+        <div class="bg-white rounded-2xl shadow-lg border-2 border-dashed border-primary p-8 text-center">
+            <div class="max-w-md mx-auto">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="bi bi-pencil-square text-primary text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-foreground mb-2">¿Problemas para registrar?</h3>
+                <p class="text-muted-foreground mb-4 text-sm leading-relaxed">
+                    Si no pudiste registrar tu asistencia automáticamente, puedes hacerlo de forma manual
+                </p>
+                <a asp-controller="AttendanceRecord" asp-action="CreateManualAssRecord"
+                   class="inline-block bg-primary text-primary-foreground font-medium px-6 py-3 rounded-lg hover:bg-secondary transition-colors shadow text-decoration-none">
+                    Registrar Manualmente
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SPINNER DE CARGA (Oculto por defecto) -->
+    <div id="pantalla-cargando" class="hidden bg-white rounded-2xl shadow-xl p-12 border border-border text-center">
+        <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mb-4"></div>
+        <h3 class="text-xl font-bold text-foreground mb-2">Procesando registro...</h3>
+        <p class="text-muted-foreground text-sm">Por favor, espera un momento</p>
+    </div>
+
+    <!-- PANTALLA 2: Confirmación Exitosa (Oculto por defecto) -->
+    <div id="pantalla-exito" class="hidden bg-white rounded-2xl shadow-xl p-12 border border-border text-center">
+        <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="bi bi-check-circle text-green-600 text-5xl"></i>
+        </div>
+        <h2 class="text-3xl font-bold text-foreground mb-4">¡Asistencia Registrada!</h2>
+        <p class="text-muted-foreground mb-2 text-lg">
+            Método: <span id="metodo-usado" class="text-primary font-bold"></span>
+        </p>
+        <p id="fecha-actual" class="text-sm text-muted-foreground mb-6 font-medium"></p>
+        
+        <button type="button"
+                onclick="reiniciarVista()"
+                class="bg-primary text-primary-foreground font-medium px-6 py-3 rounded-lg hover:bg-secondary transition-colors shadow">
+            Registrar otra asistencia
+        </button>
+    </div>
+
+    <!-- Información Importante Footer -->
+    <div class="mt-8 bg-blue-50/80 rounded-xl p-6 border border-blue-200">
+        <h3 class="font-bold text-foreground mb-3 text-base">
+            <i class="bi bi-info-circle text-primary mr-1"></i> Información importante
+        </h3>
+        <ul class="space-y-2 text-sm text-muted-foreground">
+            <li class="flex items-center gap-2">
+                <span class="text-primary">•</span>
+                Debes registrar tu asistencia dentro de los primeros 15 minutos de clase
+            </li>
+            <li class="flex items-center gap-2">
+                <span class="text-primary">•</span>
+                El registro después de 10 minutos se marca como tardanza
+            </li>
+            <li class="flex items-center gap-2">
+                <span class="text-primary">•</span>
+                Cada estudiante solo puede registrar una asistencia por sesión
+            </li>
+            <li class="flex items-center gap-2">
+                <span class="text-primary">•</span>
+                El sistema funciona sin conexión a internet
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        function simularRegistro(metodo) {
+            // Ocultar selección y mostrar loader
+            document.getElementById('pantalla-seleccion').classList.add('hidden');
+            document.getElementById('pantalla-cargando').classList.remove('hidden');
+
+            // Simular petición de 1.5 segundos
+            setTimeout(() => {
+                document.getElementById('pantalla-cargando').classList.add('hidden');
+                document.getElementById('pantalla-exito').classList.remove('hidden');
+
+                document.getElementById('metodo-usado').innerText = metodo;
+                
+                // Formatear fecha local en español
+                const ahora = new Date();
+                const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-CO', opciones);
+            }, 1500);
+        }
+
+        function reiniciarVista() {
+            document.getElementById('pantalla-exito').classList.add('hidden');
+            document.getElementById('pantalla-seleccion').classList.remove('hidden');
+        }
+    </script>
+}

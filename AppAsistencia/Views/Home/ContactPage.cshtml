@@ -1,0 +1,155 @@
+﻿@{
+    ViewData["Title"] = "Contacto";
+}
+
+<div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Contacto</h1>
+        <p class="text-muted-foreground">
+            ¿Tienes preguntas? Estamos aquí para ayudarte
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Formulario de Contacto (2 Columnas en pantallas grandes) -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-border">
+                <h2 class="text-xl font-bold text-foreground mb-6">Envíanos un mensaje</h2>
+                
+                <form asp-controller="Home" asp-action="Contacto" method="post" class="space-y-6">
+                    @Html.AntiForgeryToken()
+
+                    <div>
+                        <label for="name" class="block text-foreground mb-2 font-medium">
+                            Nombre Completo
+                        </label>
+                        <input id="name"
+                               name="name"
+                               type="text"
+                               placeholder="Ej: Juan Pérez"
+                               class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                               required />
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-foreground mb-2 font-medium">
+                            Correo Electrónico
+                        </label>
+                        <input id="email"
+                               name="email"
+                               type="email"
+                               placeholder="usuario@itm.edu.co"
+                               class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                               required />
+                    </div>
+
+                    <div>
+                        <label for="subject" class="block text-foreground mb-2 font-medium">
+                            Asunto
+                        </label>
+                        <select id="subject"
+                                name="subject"
+                                class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium"
+                                required>
+                            <option value="">Selecciona un tema</option>
+                            <option value="soporte-tecnico">Soporte Técnico</option>
+                            <option value="problemas-registro">Problemas con Registro</option>
+                            <option value="consulta-academica">Consulta Académica</option>
+                            <option value="sugerencias">Sugerencias</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="message" class="block text-foreground mb-2 font-medium">
+                            Mensaje
+                        </label>
+                        <textarea id="message"
+                                  name="message"
+                                  rows="6"
+                                  placeholder="Escribe tu consulta aquí..."
+                                  class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                                  required></textarea>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors flex items-center justify-center gap-2 font-medium shadow-md">
+                        <i class="bi bi-send text-lg"></i>
+                        Enviar Mensaje
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tarjetas de Información de Contacto (1 Columna en la derecha) -->
+        <div class="space-y-6">
+            
+            <!-- Dirección -->
+            <div class="bg-white rounded-2xl shadow-lg border border-border p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-geo-alt text-primary text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-foreground mb-1">Dirección</h3>
+                        <p class="text-sm text-muted-foreground leading-relaxed">
+                            Calle 54A No. 30 – 01, Barrio Boston<br />
+                            Medellín, Colombia
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teléfono -->
+            <div class="bg-white rounded-2xl shadow-lg border border-border p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-telephone text-primary text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-foreground mb-1">Teléfono</h3>
+                        <p class="text-sm text-muted-foreground">
+                            604 460 07 27
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correo -->
+            <div class="bg-white rounded-2xl shadow-lg border border-border p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-envelope text-primary text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-foreground mb-1">Correo</h3>
+                        <p class="text-sm text-muted-foreground">
+                            asistencia@itm.edu.co
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Horario de Atención -->
+            <div class="bg-white rounded-2xl shadow-lg border border-border p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-clock text-primary text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-foreground mb-1">Horario de Atención</h3>
+                        <p class="text-sm text-muted-foreground leading-relaxed">
+                            Lunes a Viernes<br />
+                            7:00 AM - 7:00 PM
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,115 @@
+﻿@{
+    ViewData["Title"] = "Funcionalidades";
+
+    // Estructura de datos en C# para las características del sistema
+    var features = new[]
+    {
+        new {
+            Icon = "bi-broadcast",
+            Title = "Registro por NFC",
+            Description = "Acerca tu tarjeta o teléfono al lector para marcar asistencia en segundos.",
+            Benefits = new[] { "Rápido y sin contacto", "Compatible con tarjetas estudiantiles", "Precisión del 99.9%" }
+        },
+        new {
+            Icon = "bi-bluetooth",
+            Title = "Detección BLE",
+            Description = "El sistema detecta automáticamente tu presencia en el aula mediante Bluetooth.",
+            Benefits = new[] { "Sin necesidad de acercarse al lector", "Reducción de aglomeraciones", "Detección por geocerca" }
+        },
+        new {
+            Icon = "bi-fingerprint",
+            Title = "Validación Biométrica",
+            Description = "Verificación de identidad mediante huella o reconocimiento facial.",
+            Benefits = new[] { "Previene suplantación", "Alta seguridad", "Cifrado de datos biométricos" }
+        },
+        new {
+            Icon = "bi-bar-chart-line",
+            Title = "Reportes Avanzados",
+            Description = "Consulta estadísticas detalladas y exporta datos para análisis.",
+            Benefits = new[] { "Exportación CSV/Excel/PDF", "Gráficos interactivos", "Filtros personalizables" }
+        },
+        new {
+            Icon = "bi-shield-check",
+            Title = "Seguridad y Privacidad",
+            Description = "Protección de datos con cifrado AES-256 y cumplimiento de normativas.",
+            Benefits = new[] { "Cifrado end-to-end", "Auditoría completa", "Control de acceso basado en roles" }
+        },
+        new {
+            Icon = "bi-wifi-off",
+            Title = "Modo Offline",
+            Description = "Funciona sin conexión a internet, sincronizando cuando vuelva la conectividad.",
+            Benefits = new[] { "Sin interrupciones por red", "Sincronización automática", "Cola de registros local" }
+        },
+        new {
+            Icon = "bi-clock",
+            Title = "Control de Tardanzas",
+            Description = "Configuración flexible de umbrales de tardanza por curso.",
+            Benefits = new[] { "Umbrales personalizables", "Registro automático", "Notificaciones en tiempo real" }
+        },
+        new {
+            Icon = "bi-bell",
+            Title = "Alertas y Notificaciones",
+            Description = "Recibe avisos cuando tu asistencia esté por debajo del umbral requerido.",
+            Benefits = new[] { "Alertas proactivas", "Notificaciones push", "Recordatorios de clase" }
+        }
+    };
+}
+
+<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Funcionalidades</h1>
+        <p class="text-muted-foreground">
+            Descubre todas las características del Sistema de Control de Asistencia
+        </p>
+    </div>
+
+    <!-- Grilla de Características -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @foreach (var feature in features)
+        {
+            <div class="bg-white rounded-2xl shadow-lg border border-border p-6 hover:shadow-xl transition-shadow">
+                
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="bi @feature.Icon text-primary text-3xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-bold text-foreground mb-2">@feature.Title</h2>
+                        <p class="text-sm text-muted-foreground leading-relaxed">@feature.Description</p>
+                    </div>
+                </div>
+
+                <div class="pl-0 sm:pl-[4.5rem]">
+                    <ul class="space-y-2">
+                        @foreach (var benefit in feature.Benefits)
+                        {
+                            <li class="text-sm text-muted-foreground flex items-start gap-2">
+                                <span class="text-primary font-bold">✓</span>
+                                <span>@benefit</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+            </div>
+        }
+    </div>
+
+    <!-- Banner de CTA (Llamado a la Acción) -->
+    <div class="mt-12 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-2xl shadow-xl p-8">
+        <div class="text-center max-w-3xl mx-auto">
+            <h2 class="text-2xl font-bold mb-4">¿Listo para comenzar?</h2>
+            <p class="mb-6 opacity-90 leading-relaxed">
+                Únete a cientos de estudiantes y docentes que ya están usando el sistema
+                más avanzado de control de asistencia.
+            </p>
+            <a asp-controller="Account" asp-action="Register"
+               class="inline-block bg-white text-blue-600 font-bold px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors shadow-md text-decoration-none">
+                Registrarse Ahora
+            </a>
+        </div>
+    </div>
+
+</div>
