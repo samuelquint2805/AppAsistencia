@@ -12,11 +12,11 @@ namespace AppAsistencia.DTOs
         public Guid idRol { get; set; }
 
         [Required]
-        public string nombreRol { get; set; }
+        public string nombreRol { get; set; } = null!;
         [Required]
-        public string descripcion { get; set; }
+        public string descripcion { get; set; } = null!;
         [Required]
-        public string rutaPermisos { get; set; }
+       
         #endregion
 
         #region relationships

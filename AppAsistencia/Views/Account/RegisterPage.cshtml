@@ -5,12 +5,19 @@
 <div class="w-full min-h-[calc(100vh-5rem)] flex items-center justify-center px-4 py-8 bg-gradient-to-br from-blue-50 to-white">
     <div class="w-full max-w-2xl mx-auto">
         <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-border">
-            
+
             <!-- Encabezado -->
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-bold text-foreground mb-2">Crear Cuenta</h1>
                 <p class="text-muted-foreground">Regístrate en el Sistema de Control de Asistencia ITM</p>
             </div>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="mb-6 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
+                    @ViewBag.Error
+                </div>
+            }
 
             <form asp-controller="Account" asp-action="Register" method="post" class="space-y-6">
                 @Html.AntiForgeryToken()
@@ -83,13 +90,13 @@
                 <div id="studentFields" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label for="studentCard" class="block text-foreground mb-2 font-medium">
+                            <label for="studentIdCard" class="block text-foreground mb-2 font-medium">
                                 Carnet Estudiantil
                             </label>
                             <div class="relative">
                                 <i class="bi bi-person-badge absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
-                                <input id="studentCard"
-                                       name="studentCard"
+                                <input id="studentIdCard"
+                                       name="studentIdCard"
                                        type="text"
                                        placeholder="Carnet EST"
                                        class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
@@ -97,13 +104,13 @@
                         </div>
 
                         <div>
-                            <label for="studentPhone" class="block text-foreground mb-2 font-medium">
+                            <label for="phoneNumber" class="block text-foreground mb-2 font-medium">
                                 Teléfono
                             </label>
                             <div class="relative">
                                 <i class="bi bi-telephone absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
-                                <input id="studentPhone"
-                                       name="studentPhone"
+                                <input id="phoneNumber"
+                                       name="phoneNumber"
                                        type="tel"
                                        placeholder="3001234567"
                                        class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
@@ -170,7 +177,6 @@
                                 <option value="Electrónica y Telecomunicaciones">Electrónica y Telecomunicaciones</option>
                                 <option value="Ciencias Exactas y Aplicadas">Ciencias Exactas y Aplicadas</option>
                                 <option value="Artes y Humanidades">Artes y Humanidades</option>
-                                <!-- Puedes agregar más opciones en el futuro aquí -->
                             </select>
                         </div>
                     </div>
@@ -237,7 +243,7 @@
                 <!-- Link a Login -->
                 <div class="text-center text-sm text-muted-foreground">
                     ¿Ya tienes cuenta?
-                    <a asp-controller="Account" asp-action="LoginSelection" class="text-primary hover:underline font-medium ml-1">
+                    <a asp-controller="Account" asp-action="LoginSelectionPage" class="text-primary hover:underline font-medium ml-1">
                         Inicia sesión aquí
                     </a>
                 </div>
@@ -249,7 +255,6 @@
 
 @section Scripts {
     <script>
-        // Función para cambiar visibilidad de campos según Rol
         function toggleUserFields() {
             const userType = document.getElementById('userType').value;
             const studentFields = document.getElementById('studentFields');
@@ -264,11 +269,10 @@
             }
         }
 
-        // Función ver/ocultar contraseña
         function togglePassword(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
-            
+
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.classList.remove('bi-eye');

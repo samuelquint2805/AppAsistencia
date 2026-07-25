@@ -10,13 +10,13 @@ namespace AppAsistencia.DTOs
         public Guid idSubject { get; set; }
 
         [Required]
-        public string subjectCode { get; set; }
+        public string subjectCode { get; set; } = null!;
 
         [Required]
-        public string name { get; set; }
+        public string name { get; set; } = null!;
 
         [Required]
-        public int credits { get; set; }
+        public int credits { get; set; } 
         [Required]
         public bool isActive { get; set; } = true;
         #endregion

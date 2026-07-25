@@ -13,13 +13,13 @@ namespace AppAsistencia.DTOs
         public Guid idParameter { get; set; }
 
         [Required]
-        public string parameterKey { get; set; }
+        public string parameterKey { get; set; } = null!;       
 
         [Required]
-        public string parameterValue { get; set; }
+        public string parameterValue { get; set; } = null!;
 
         [Required]
-        public string description { get; set; }
+        public string description { get; set; } = null!;
 
         [Required]
         public int version { get; set; }

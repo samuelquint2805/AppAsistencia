@@ -1,6 +1,7 @@
 ﻿using AppAsistencia.Data.DBSET;
 using AppAsistencia.Services.Abstractions;
 using AppAsistencia.Services.Implementations;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 namespace AppAsistencia
@@ -14,10 +15,23 @@ namespace AppAsistencia
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/LoginSelection";
+        options.AccessDeniedPath = "/Account/LoginSelection";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
 
+            builder.Services.AddScoped<ITwoFactorService, TwoFactorService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IEmailSenderService, SmtpEmailSender>();
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+            builder.Services.AddMemoryCache();
+            
+
+
             return builder;
         }
 

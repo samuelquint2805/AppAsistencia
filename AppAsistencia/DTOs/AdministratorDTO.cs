@@ -14,7 +14,7 @@ namespace AppAsistencia.DTOs
         public Guid idAdmin { get; set; }
 
         [Required]
-        public int phoneMumber { get; set; }
+        public string phoneNumber { get; set; } = null!;
         #endregion
 
         #region relationships
@@ -23,7 +23,7 @@ namespace AppAsistencia.DTOs
         public List<AdminParameterDTO>? ParameterAdmins { get; } = [];
 
         //one-to-one relationship with User
-        public UserDTO UserDTO { get; set; }
+        public UserDTO UserDTO { get; set; } = null!;
         #endregion
     }
 }

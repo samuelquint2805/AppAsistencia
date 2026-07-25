@@ -12,7 +12,7 @@ namespace AppAsistencia.Models
         public Guid idAdmin { get; set; }
 
         [Required]
-        public int phoneMumber { get; set; }
+        public string phoneNumber { get; set; } = null!;
         #endregion
 
         #region relationships
@@ -21,7 +21,7 @@ namespace AppAsistencia.Models
         public List<AdminParameter>? ParameterAdmins { get; } = [];
 
         //one-to-one relationship with User
-        public User User { get; set; } 
+        public User User { get; set; } = null!;
         #endregion
     }
 }

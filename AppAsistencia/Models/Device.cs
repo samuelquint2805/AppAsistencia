@@ -11,12 +11,12 @@ namespace AppAsistencia.Models
         [Required]
         public Guid idDevice { get; set; }
         [Required]
-        public string deviceType { get; set; }
+        public string deviceType { get; set; } = null!;
 
         [Required]
-        public string identifier { get; set; }
+        public string identifier { get; set; } = null!; 
         [Required]
-        public string location { get; set; }
+        public string location { get; set; } = null!;
         [Required]
         public bool isActive { get; set; } = true;
         #endregion

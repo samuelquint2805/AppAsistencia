@@ -18,7 +18,7 @@ namespace AppAsistencia.DTOs
         public DateTime endTime { get; set; }
 
         [Required]
-        public string status { get; set; }
+        public string status { get; set; } = null!;
         #endregion
 
         #region relationships
@@ -28,7 +28,7 @@ namespace AppAsistencia.DTOs
 
         // One-to-Many relationship with Group
         public Guid? groupDTOID { get; set; }
-        public GroupDTO groupFK { get; set; }
+        public GroupDTO groupFK { get; set; } = null!;
 
         #endregion
     }

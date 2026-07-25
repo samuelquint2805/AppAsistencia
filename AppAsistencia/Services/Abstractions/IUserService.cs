@@ -15,10 +15,12 @@ namespace AppAsistencia.Services.Abstractions
 
         Task<Response<User>> ObtenerPorEmailAsync(string email);
 
+        Task<Response<User>> ObtenerPorIdAsync(Guid idUser);
+
         // Activa/inactiva la cuenta (soft state, no elimina el registro).
         Task<Response<bool>> CambiarEstadoUsuarioAsync(Guid idUser, bool activar);
 
-        // Verifica que el correo pertenezca al dominio institucional @correo.itm.edu.co
+        // Verifica que el correo pertenezca al dominio institucional @correo.itm.edu.co o @itm.edu.co
         Task<Response<bool>> ValidarEmailAsync(string email);
 
         Task<Response<string>> GenerarTokenConfirmacionAsync(Guid idUser);

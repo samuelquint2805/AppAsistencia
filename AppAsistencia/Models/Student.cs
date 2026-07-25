@@ -12,11 +12,11 @@ namespace AppAsistencia.Models
         public Guid idStudent { get; set; }
     
         [Required]
-        public string studentIdCard { get; set; }
+        public string studentIdCard { get; set; } = null!;
         [Required]
         public int currentSemester { get; set; }
         [Required]
-        public int phoneNumber { get; set; } = 0;
+        public string phoneNumber { get; set; } = null!;
         #endregion
 
         #region relationships
@@ -25,10 +25,10 @@ namespace AppAsistencia.Models
         public ICollection<AttendanceRecord> attendanceRecordsFK { get; set; } = new List<AttendanceRecord>();
 
         // Many-to-Many relationship with Group
-        public List<Group> groupsFK { get; set; } = [];
+        public List<StudentGroup> groupsFK { get; set; } = [];
 
         //one-to-one relationship with User
-        public User user { get; set; }
+        public User user { get; set; } = null!;
 
 
         #endregion

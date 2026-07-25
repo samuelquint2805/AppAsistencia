@@ -7,17 +7,17 @@ namespace AppAsistencia.DTOs
     {
         #region attributes
         [Required]
-        public string enrollmentDate { get; set; }
+        public string enrollmentDate { get; set; } = null!;
         #endregion
 
         #region relationships 
         // One-to-Many relationship with Student
         public Guid? studentDTOID { get; set; }
-        public StudentDTO studentDTOFK { get; set; }
+        public StudentDTO studentDTOFK { get; set; } = null!;
 
         // One-to-Many relationship with Group
         public Guid? GroupDTOID { get; set; }
-        public GroupDTO groupDTOFK { get; set; }
+        public GroupDTO groupDTOFK { get; set; } = null!;
         #endregion
     }
 }

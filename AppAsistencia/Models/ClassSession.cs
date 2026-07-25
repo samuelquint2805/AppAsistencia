@@ -18,7 +18,7 @@ namespace AppAsistencia.Models
         public DateTime endTime { get; set; }
       
         [Required]
-        public string status { get; set; }
+        public string status { get; set; } = null!;
         #endregion
 
         #region relationships
@@ -28,7 +28,7 @@ namespace AppAsistencia.Models
         
         // One-to-Many relationship with Group
         public Guid? groupID { get; set; } 
-        public Group groupFK { get; set; }
+        public Group groupFK { get; set; } = null!;
 
         #endregion
     }

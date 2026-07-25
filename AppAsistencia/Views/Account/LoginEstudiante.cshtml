@@ -6,7 +6,7 @@
 <div class="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-blue-50 to-white">
     <div class="w-full max-w-md">
 
-        <a href="/Account/LoginSelection" class="inline-flex items-center gap-2 text-primary hover:underline mb-6">
+        <a href="/Account/LoginSelectionPage" class="inline-flex items-center gap-2 text-primary hover:underline mb-6">
             <i class="bi bi-arrow-left" style="font-size: 1rem;"></i>
             Volver a selección
         </a>
@@ -110,10 +110,10 @@
                     const data = await response.json();
 
                     if (data.isSuccess) {
-                        localStorage.setItem('token', data.result.token);
-                        localStorage.setItem('userName', data.result.userName);
-                        localStorage.setItem('role', data.result.role);
-                        window.location.href = '/Account/LoginExitoso';
+                        // Ya NO se guarda token aqui: falta el paso de 2FA.
+                        const idUser = data.result.idUser;
+                        const email = data.result.emailEnmascarado;
+                        window.location.href = '/Account/Verificacion2FA?idUser=' + encodeURIComponent(idUser) + '&email=' + encodeURIComponent(email);
                     } else {
                         errorBox.textContent = data.message || 'Credenciales inválidas';
                         errorBox.classList.remove('hidden');

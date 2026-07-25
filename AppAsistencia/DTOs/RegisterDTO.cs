@@ -36,14 +36,14 @@ namespace AppAsistencia.DTOs
         // --- Datos específicos por rol. Solo se validan los del rol seleccionado ---
 
         // Requeridos si Role == Student
-        public string? StudentIdCard { get; set; }
-        public int? CurrentSemester { get; set; }
+        public string? studentIdCard { get; set; }
+        public int? currentSemester { get; set; }
 
         // Requeridos si Role == Professor
-        public string? ProfessorIdCard { get; set; }
-        public string? Department { get; set; }
+        public string? professorIdCard { get; set; }
+        public string? department { get; set; }
 
         // Usado por Student, Professor y Administrator
-        public int? PhoneNumber { get; set; }
+        public string? phoneNumber { get; set; }
     }
 }

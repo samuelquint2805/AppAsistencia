@@ -11,7 +11,7 @@ namespace AppAsistencia.DTOs
         public Guid? idRoute { get; set; }
 
         [Required]
-        public string routeName { get; set; }
+        public string routeName { get; set; } = null!;
         #endregion
 
         #region relationships

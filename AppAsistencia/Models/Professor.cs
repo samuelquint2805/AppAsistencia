@@ -10,19 +10,18 @@ namespace AppAsistencia.Models
         public Guid idTeacher { get; set; }
 
         [Required]
-        public string professorIdCard { get; set; }
+        public string professorIdCard { get; set; } = null!;
         [Required]
-        public int phoneNumber { get; set; }
+        public string phoneNumber { get; set; } = null!;
         [Required]
-        public string department { get; set; }
+        public string department { get; set; } = null!;
         #endregion
 
         #region relationships 
         // One-to-Many relationship with group
         public ICollection<Group> groupsFK { get; set; } = new List<Group>();
 
-        public Guid? userId { get; set; }
-        public User user { get; set; }
+        public User user { get; set; } = null!;
         #endregion
     }
 }

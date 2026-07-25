@@ -5,9 +5,9 @@
 
 <div class="w-full min-h-[calc(100vh-5rem)] flex items-center justify-center px-4 py-8 bg-gradient-to-br from-blue-50 to-white">
     <div class="w-full max-w-md mx-auto">
-        
+
         <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-border">
-            
+
             <!-- Encabezado -->
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
@@ -23,15 +23,23 @@
                 </div>
             </div>
 
+            @if (ViewBag.Error != null)
+            {
+                <div class="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
+                    @ViewBag.Error
+                </div>
+            }
+
             <!-- Formulario de 6 Dígitos OTP -->
             <form asp-controller="Account" asp-action="Verificar2FA" method="post" class="space-y-6">
                 @Html.AntiForgeryToken()
+                <input type="hidden" name="idUser" value="@ViewBag.IdUser" />
 
                 <div>
                     <label class="block text-foreground mb-3 text-center font-medium">
                         Ingresa el código de verificación
                     </label>
-                    
+
                     <!-- 6 Recuadros de entrada para el PIN -->
                     <div class="flex gap-2 justify-center">
                         @for (int i = 0; i < 6; i++)
@@ -63,6 +71,7 @@
                         ¿No recibiste el código?
                     </p>
                     <button type="button"
+                            id="btn-reenviar"
                             onclick="reenviarCodigo()"
                             class="text-sm text-primary font-medium hover:underline">
                         Reenviar código
@@ -74,7 +83,7 @@
 
         <!-- Nota al pie de página -->
         <div class="mt-6 text-center text-sm text-muted-foreground">
-            <p><i class="bi bi-clock-history mr-1"></i> El código expira en 5 minutos</p>
+            <p><i class="bi bi-clock-history mr-1"></i> El código expira en 10 minutos</p>
         </div>
 
     </div>
@@ -117,7 +126,27 @@
         }
 
         function reenviarCodigo() {
-            alert('Se ha reenviado un nuevo código de 6 dígitos a tu correo.');
+            const idUser = document.querySelector('input[name="idUser"]').value;
+            const btnReenviar = document.getElementById('btn-reenviar');
+            btnReenviar.disabled = true;
+            btnReenviar.textContent = 'Enviando...';
+
+            fetch('/api/auth/resend-2fa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idUser: idUser })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message || 'Se ha reenviado un nuevo código de 6 dígitos a tu correo.');
+                btnReenviar.disabled = false;
+                btnReenviar.textContent = 'Reenviar código';
+            })
+            .catch(() => {
+                alert('No se pudo reenviar el código. Intenta de nuevo.');
+                btnReenviar.disabled = false;
+                btnReenviar.textContent = 'Reenviar código';
+            });
         }
     </script>
 }

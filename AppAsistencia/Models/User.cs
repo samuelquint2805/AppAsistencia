@@ -10,22 +10,22 @@ namespace AppAsistencia.Models
         public Guid idUser { get; set; }
 
         [Required]
-        public string institutionalCode { get; set; }
+        public string institutionalCode { get; set; } = null!;
 
         [Required]
-        public string userName { get; set; }
+        public string userName { get; set; } = null!;
 
         [Required]
-        public string firstname { get; set; }
+        public string firstname { get; set; } = null!;
 
         [Required]
-        public string lastName { get; set; }
+        public string lastName { get; set; } = null!;
 
         [Required]
-        public string email { get; set; }
+        public string email { get; set; } = null!;
 
         [Required]
-        public string passwordHash { get; set; }
+        public string passwordHash { get; set; } = null!;
 
         [Required]
         public bool isActive { get; set; } = true;
@@ -50,7 +50,7 @@ namespace AppAsistencia.Models
         public Professor professorFK { get; set; } = null!;
 
         // One-to-Many relationship with role
-        public Guid? RoleID { get; set; }
+        public Guid? idRol { get; set; }
         public Role roleFK { get; set; } = null!;
 
         #endregion

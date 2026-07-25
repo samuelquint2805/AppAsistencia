@@ -23,7 +23,7 @@ namespace AppAsistencia.Core
             };
         }
 
-        public static Response<T> Failure(string message, List<string> errors = null)
+        public static Response<T> Failure(string message, List<string> errors = null!)
         {
             return new Response<T>
             {

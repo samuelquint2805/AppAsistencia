@@ -11,7 +11,8 @@ namespace AppAsistencia.Services.Implementations
     {
         private readonly DataContextAsistencia _context;
         private readonly IEmailSenderService _emailSender;
-        private const string DominioInstitucional = "@correo.itm.edu.co";
+        private const string DominioInstitucional1 = "@correo.itm.edu.co";
+        private const string DominioInstitucional2 = "@itm.edu.co";
 
         public UserService(DataContextAsistencia context, IEmailSenderService emailSender)
         {
@@ -26,7 +27,7 @@ namespace AppAsistencia.Services.Implementations
                 // 1. Regla de negocio: solo correos institucionales
                 if (!EsCorreoInstitucionalValido(dto.Email))
                     return Response<UserSummaryDTO>.Failure(
-                        $"Solo se permiten correos institucionales terminados en {DominioInstitucional}");
+                        $"Solo se permiten correos institucionales terminados en {DominioInstitucional1} o {DominioInstitucional2}");
 
                 // 2. Correo único
                 var yaExiste = await _context.Set<User>().AnyAsync(u => u.email == dto.Email);
@@ -41,11 +42,11 @@ namespace AppAsistencia.Services.Implementations
                     return Response<UserSummaryDTO>.Failure($"El rol '{roleName}' no está configurado en el sistema");
 
                 // 4. Validaciones específicas por rol antes de abrir la transacción
-                if (dto.Role == RoleType.Student && (string.IsNullOrWhiteSpace(dto.StudentIdCard) || dto.CurrentSemester is null))
-                    return Response<UserSummaryDTO>.Failure("studentIdCard y currentSemester son requeridos para el rol Student");
+                if (dto.Role == RoleType.Student && (string.IsNullOrWhiteSpace(dto.studentIdCard) || dto.currentSemester is null))
+                    return Response<UserSummaryDTO>.Failure("carnet institucional y semestre actual son requeridos");
 
-                if (dto.Role == RoleType.Professor && (string.IsNullOrWhiteSpace(dto.ProfessorIdCard) || string.IsNullOrWhiteSpace(dto.Department)))
-                    return Response<UserSummaryDTO>.Failure("professorIdCard y department son requeridos para el rol Professor");
+                if (dto.Role == RoleType.Professor && (string.IsNullOrWhiteSpace(dto.professorIdCard) || string.IsNullOrWhiteSpace(dto.department)))
+                    return Response<UserSummaryDTO>.Failure("carnet de profesor y departamento son requeridos");
 
                 // 5. Transacción: el id del usuario se reutiliza como PK/FK compartida
                 //    en la tabla específica del rol.
@@ -65,8 +66,8 @@ namespace AppAsistencia.Services.Implementations
                     isActive = true,
                     isEmailConfirmed = false,
                     registerDate = DateTime.UtcNow,
-                    accountRenewalDate = DateTime.UtcNow.AddYears(1),
-                    RoleID = role.idRol
+                    accountRenewalDate = DateTime.UtcNow.AddMonths(6),
+                    idRol = role.idRol
                 };
                 _context.Add(user);
 
@@ -76,9 +77,9 @@ namespace AppAsistencia.Services.Implementations
                         _context.Add(new Student
                         {
                             idStudent = idUser,
-                            studentIdCard = dto.StudentIdCard!,
-                            currentSemester = dto.CurrentSemester!.Value,
-                            phoneNumber = dto.PhoneNumber ?? 0
+                            studentIdCard = dto.studentIdCard!,
+                            currentSemester = dto.currentSemester!.Value,
+                            phoneNumber = dto.phoneNumber ?? string.Empty
                         });
                         break;
 
@@ -86,10 +87,10 @@ namespace AppAsistencia.Services.Implementations
                         _context.Add(new Professor
                         {
                             idTeacher = idUser,
-                            professorIdCard = dto.ProfessorIdCard!,
-                            phoneNumber = dto.PhoneNumber ?? 0,
-                            department = dto.Department!,
-                            userId = idUser
+                            professorIdCard = dto.professorIdCard!,
+                            phoneNumber = dto.phoneNumber ?? string.Empty,
+                            department = dto.department!
+                           
                         });
                         break;
 
@@ -97,7 +98,7 @@ namespace AppAsistencia.Services.Implementations
                         _context.Add(new Administrator
                         {
                             idAdmin = idUser,
-                            phoneMumber = dto.PhoneNumber ?? 0
+                            phoneNumber = dto.phoneNumber ?? string.Empty
                         });
                         break;
                 }
@@ -183,6 +184,24 @@ namespace AppAsistencia.Services.Implementations
             }
         }
 
+        public async Task<Response<User>> ObtenerPorIdAsync(Guid idUser)
+        {
+            try
+            {
+                var user = await _context.Set<User>()
+                    .Include(u => u.roleFK)
+                    .FirstOrDefaultAsync(u => u.idUser == idUser);
+
+                return user is null
+                    ? Response<User>.Failure("Usuario no encontrado")
+                    : Response<User>.Success(user);
+            }
+            catch (Exception ex)
+            {
+                return Response<User>.Failure(ex, "Ocurrió un error al buscar el usuario");
+            }
+        }
+
         public async Task<Response<bool>> CambiarEstadoUsuarioAsync(Guid idUser, bool activar)
         {
             try
@@ -207,7 +226,7 @@ namespace AppAsistencia.Services.Implementations
             var esValido = EsCorreoInstitucionalValido(email);
             var respuesta = esValido
                 ? Response<bool>.Success(true, "Correo institucional válido")
-                : Response<bool>.Failure($"Solo se permiten correos institucionales terminados en {DominioInstitucional}");
+                : Response<bool>.Failure($"Solo se permiten correos institucionales terminados en {DominioInstitucional1} o {DominioInstitucional2}");
 
             return Task.FromResult(respuesta);
         }
@@ -261,7 +280,8 @@ namespace AppAsistencia.Services.Implementations
         private static bool EsCorreoInstitucionalValido(string email)
         {
             return !string.IsNullOrWhiteSpace(email)
-                && email.Trim().EndsWith(DominioInstitucional, StringComparison.OrdinalIgnoreCase);
+                && (email.Trim().EndsWith(DominioInstitucional1, StringComparison.OrdinalIgnoreCase) ||
+                     email.Trim().EndsWith(DominioInstitucional2, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

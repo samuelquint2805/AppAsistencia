@@ -125,7 +125,7 @@ namespace AppAsistencia.Services
                  );
             }
         }
-        public async Task<Response<TDTO>> getListGenericAsync<TEntity, TDTO>(IQueryable<TEntity> query = null) where TEntity : class, iID
+        public async Task<Response<TDTO>> getListGenericAsync<TEntity, TDTO>(IQueryable<TEntity> query = null!) where TEntity : class, iID
         {
             try
             {

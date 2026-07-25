@@ -15,13 +15,13 @@ namespace AppAsistencia.Models
         public DateTime captureTimeStamp { get; set; }
 
         [Required]
-        public string captureMethod { get; set; }
+        public string captureMethod { get; set; } = null!;
 
         [Required]
-        public string attendanceStatus { get; set; }
+        public string attendanceStatus { get; set; } = null!;
 
         [Required]
-        public string recordHash { get; set; }
+        public string recordHash { get; set; } = null!;
 
         [Required]
         public bool isActive { get; set; } = true;

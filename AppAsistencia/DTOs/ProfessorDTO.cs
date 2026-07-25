@@ -11,11 +11,11 @@ namespace AppAsistencia.DTOs
         public Guid idTeacher { get; set; }
 
         [Required]
-        public string professorIdCard { get; set; }
+        public string professorIdCard { get; set; } = string.Empty;
         [Required]
-        public int phoneNumber { get; set; }
+        public string phoneNumber { get; set; } = null!;
         [Required]
-        public string department { get; set; }
+        public string department { get; set; } = null!;
         #endregion
 
         #region relationships 
@@ -23,8 +23,8 @@ namespace AppAsistencia.DTOs
         public ICollection<GroupDTO> groupsDTOFK { get; set; } = new List<GroupDTO>();
 
         // One-to-One relationship with User
-        public Guid? userDTOId { get; set; }
-        public UserDTO userDTOFK { get; set; }
+        
+        public UserDTO userDTOFK { get; set; } = null!;
         #endregion
 
     }
