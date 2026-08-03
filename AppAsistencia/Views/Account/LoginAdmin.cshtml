@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Login Docente";
+    ViewData["Title"] = "Login Admin";
     Layout = "_AuthLayout";
 }
 
@@ -14,10 +14,10 @@
         <div class="bg-white rounded-2xl shadow-xl p-8 border border-border">
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <i class="bi bi-people text-primary" style="font-size: 2rem;"></i>
+                    <i class="bi bi-mortarboard text-primary" style="font-size: 2rem;"></i>
                 </div>
-                <h1 class="text-foreground mb-2">Bienvenido, Docente</h1>
-                <p class="text-muted-foreground">Inicia sesión para gestionar tus clases</p>
+                <h1 class="text-foreground mb-2">Bienvenido, Administrador</h1>
+                <p class="text-muted-foreground">Inicia sesión para acceder al sistema</p>
             </div>
 
             <div id="login-error" class="hidden mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm"></div>
@@ -29,7 +29,7 @@
                         <i class="bi bi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
                         <input id="email"
                                type="email"
-                               placeholder="docente@correo.itm.edu.co"
+                               placeholder="administrador@correo.itm.edu.co"
                                class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
                                required />
                     </div>
@@ -58,14 +58,12 @@
                     </label>
                     <a href="/Account/ForgotPassword" class="text-sm text-primary hover:underline">¿Olvidaste tu contraseña?</a>
                 </div>
-                 
+
                 <button type="submit" id="submit-button" class="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors">
                     Continuar
                 </button>
-                <div class="text-center text-sm text-muted-foreground">
-                    ¿No tienes cuenta?
-                    <a href="/Account/RegisterProfessor" class="text-primary hover:underline">Regístrate aquí</a>
-                </div>
+
+               
             </form>
         </div>
     </div>

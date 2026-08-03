@@ -1,7 +1,10 @@
 ﻿using AppAsistencia.Core;
 using AppAsistencia.DTOs;
 using AppAsistencia.Services.Abstractions;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AppAsistencia.Controllers
 {
@@ -58,17 +61,50 @@ namespace AppAsistencia.Controllers
 
             var user = credenciales.Result;
 
-            var envio = await _twoFactorService.GenerarYEnviarCodigoAsync(user.idUser, user.email, user.firstname);
-            if (!envio.IsSuccess)
-                return StatusCode(500, Response<TwoFactorRequiredDTO>.Failure(envio.Message ?? "No se pudo enviar el código de verificación"));
-
-            var resultado = new TwoFactorRequiredDTO
+            // ---------- Correo AUN NO confirmado: exige 2FA (primera vez) ----------
+            if (!user.isEmailConfirmed)
             {
-                IdUser = user.idUser,
-                EmailEnmascarado = EnmascararEmail(user.email)
+                var envio = await _twoFactorService.GenerarYEnviarCodigoAsync(user.idUser, user.email, user.firstname);
+                if (!envio.IsSuccess)
+                    return StatusCode(500, Response<TwoFactorRequiredDTO>.Failure(envio.Message ?? "No se pudo enviar el código de verificación"));
+
+                var resultado2fa = new TwoFactorRequiredDTO
+                {
+                    RequiresTwoFactor = true,
+                    IdUser = user.idUser,
+                    EmailEnmascarado = EnmascararEmail(user.email)
+                };
+
+                return Ok(Response<TwoFactorRequiredDTO>.Success(resultado2fa, "Revisa tu correo institucional para el código de verificación"));
+            }
+
+            // ---------- Correo YA confirmado: inicia sesión directo, sin 2FA ----------
+            var roleName = user.roleFK?.nombreRol ?? "Sin rol";
+
+            var claims = new List<Claim>
+    {
+        new(ClaimTypes.NameIdentifier, user.idUser.ToString()),
+        new(ClaimTypes.Name, user.userName),
+        new(ClaimTypes.Email, user.email),
+        new(ClaimTypes.Role, roleName)
+    };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties
+            {
+                IsPersistent = false,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+            });
+
+            var resultadoDirecto = new TwoFactorRequiredDTO
+            {
+                RequiresTwoFactor = false,
+                IdUser = user.idUser
             };
 
-            return Ok(Response<TwoFactorRequiredDTO>.Success(resultado, "Revisa tu correo institucional para el código de verificación"));
+            return Ok(Response<TwoFactorRequiredDTO>.Success(resultadoDirecto, "Inicio de sesión exitoso"));
         }
 
         // POST api/auth/verify-2fa

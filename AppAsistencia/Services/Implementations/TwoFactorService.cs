@@ -1,4 +1,6 @@
 ﻿using AppAsistencia.Core;
+using AppAsistencia.Data.DBSET;
+using AppAsistencia.Models;
 using AppAsistencia.Services.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
@@ -13,7 +15,8 @@ namespace AppAsistencia.Services.Implementations
         // tabla de BD o a un cache distribuido (ej. Redis). Para un solo servidor (caso tipico
         // de una app universitaria) esto es suficiente y no requiere migraciones nuevas.
         
-            private readonly IMemoryCache _cache;
+     
+        private readonly IMemoryCache _cache;
             private readonly IEmailSenderService _emailSender;
             private static readonly TimeSpan Expiracion = TimeSpan.FromMinutes(10);
             private const int MaxIntentos = 5;
@@ -69,6 +72,8 @@ namespace AppAsistencia.Services.Implementations
                 }
 
                 _cache.Remove(clave);
+
+           
                 return Response<bool>.Success(true, "Código verificado correctamente");
             }
 

@@ -1,3 +1,4 @@
+using AppAsistencia.Core.RBAC;
 using AppAsistencia.Models;
 
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,8 @@ namespace AppAsistencia.Controllers
 {
     public class HomeController : Controller
     {
+        [HttpGet]
+        [RequireRoutePermission("/Home/Index", PermissionType.View)]
         public IActionResult Index()
         {
             var model = new HomeViewModel

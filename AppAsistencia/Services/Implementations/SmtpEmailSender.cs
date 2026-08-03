@@ -33,7 +33,7 @@ namespace AppAsistencia.Services.Implementations
             var user = smtp["User"] ?? throw new InvalidOperationException("SmtpSettings:User no está configurado");
             var password = smtp["Password"] ?? throw new InvalidOperationException("SmtpSettings:Password no está configurado");
             var fromEmail = smtp["From"] ?? user;
-            var fromName = smtp["FromName"] ?? "AppAsistencia";
+            var fromName = smtp["FromName"] ?? "AppAsistencia (Notificaciones)";
             var enableSsl = bool.Parse(smtp["EnableSsl"] ?? "true");
 
             using var mensaje = new MailMessage
@@ -44,6 +44,9 @@ namespace AppAsistencia.Services.Implementations
                 IsBodyHtml = true
             };
             mensaje.To.Add(toEmail);
+            mensaje.Headers.Add("X-Mailer", "AppAsistencia ITM");
+            mensaje.Headers.Add("Precedence", "bulk"); // O quita si es correo individual
+
 
             using var cliente = new SmtpClient(host, port)
             {
@@ -51,7 +54,21 @@ namespace AppAsistencia.Services.Implementations
                 EnableSsl = enableSsl
             };
 
-            await cliente.SendMailAsync(mensaje);
+            try
+            {
+                await cliente.SendMailAsync(mensaje);
+                System.Diagnostics.Debug.WriteLine("✅ CONEXIÓN SMTP EXITOSA: Correo enviado a " + toEmail);
+            }
+            catch (SmtpException ex)
+            {
+                // Esto te dirá exactamente el código de respuesta del servidor (ej. 535 Authentication failed)
+                System.Diagnostics.Debug.WriteLine($"❌ ERROR DE CONEXIÓN SMTP: {ex.StatusCode} - {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DETALLE INTERNO: {ex.InnerException.Message}");
+                }
+                throw; // Vuelve a lanzar para no ocultar la excepción
+            }
         }
     }
 }

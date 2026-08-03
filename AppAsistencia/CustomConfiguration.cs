@@ -19,7 +19,7 @@ namespace AppAsistencia
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/LoginSelection";
-        options.AccessDeniedPath = "/Account/LoginSelection";
+        options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
     });
 

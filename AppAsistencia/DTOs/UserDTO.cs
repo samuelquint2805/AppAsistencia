@@ -10,8 +10,7 @@ namespace AppAsistencia.DTOs
         [Required]
         public Guid idUser { get; set; }
 
-        [Required]
-        public string institutionalCode { get; set; } = null!;
+       
 
         [Required]
         public string userName { get; set; } = null!; 

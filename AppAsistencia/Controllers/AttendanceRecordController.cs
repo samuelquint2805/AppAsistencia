@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AppAsistencia.Core.RBAC;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppAsistencia.Controllers
@@ -6,94 +7,39 @@ namespace AppAsistencia.Controllers
     public class AttendanceRecordController : Controller
     {
         // GET: AttendanceRecordController
+        [HttpGet]
+        [RequireRoutePermission("/AttendanceRecord/attendanceConfirm", PermissionType.View, PermissionType.Edit)]
         public ActionResult attendanceConfirm()
         {
             return View();
         }
 
        
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        // GET: AttendanceRecordController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
 
         // GET: AttendanceRecordController/Create
+        [HttpGet]
+        [RequireRoutePermission("/AttendanceRecord/CreateAssRecord", PermissionType.View, PermissionType.Create)]
         public ActionResult CreateAssRecord()
         {
             return View();
         }
 
+        [HttpGet]
+        [RequireRoutePermission("/AttendanceRecord/CreateManualAssRecord", PermissionType.View, PermissionType.Create)]
         public ActionResult CreateManualAssRecord()
         {
             return View();
         }
 
+        [HttpGet]
+        [RequireRoutePermission("/AttendanceRecord/ViewFaults", PermissionType.View, PermissionType.Edit, PermissionType.Delete)]
         public ActionResult ViewFaults()
         {
             return View();
         }
 
-        // POST: AttendanceRecordController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        
 
-        // GET: AttendanceRecordController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: AttendanceRecordController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: AttendanceRecordController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: AttendanceRecordController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        
     }
 }

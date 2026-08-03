@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Crear Cuenta";
+    ViewData["Title"] = "Crear Cuenta docente";
 }
 
 <div class="w-full min-h-[calc(100vh-5rem)] flex items-center justify-center px-4 py-8 bg-gradient-to-br from-blue-50 to-white">
@@ -19,23 +19,10 @@
                 </div>
             }
 
-            <form asp-controller="Account" asp-action="Register" method="post" class="space-y-6">
+            <form asp-controller="Account" asp-action="RegisterProfessor" method="post" class="space-y-6">
                 @Html.AntiForgeryToken()
 
-                <!-- Seleccionar Tipo de Usuario -->
-                <div>
-                    <label for="userType" class="block text-foreground mb-2 font-medium">
-                        Tipo de Usuario
-                    </label>
-                    <select id="userType"
-                            name="userType"
-                            onchange="toggleUserFields()"
-                            class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium"
-                            required>
-                        <option value="estudiante">Estudiante</option>
-                        <option value="docente">Docente</option>
-                    </select>
-                </div>
+                
 
                 <!-- CAMPOS COMUNES: Nombre Completo  -->
           <div class="mb-6">
@@ -69,10 +56,10 @@
                     </div>
                 </div>
 
-               
+                
 
-              
-                <div id="teacherFields" class="space-y-6 hidden">
+                <!-- SECCIÓN DINÁMICA: CAMPOS PARA DOCENTE (Oculto por defecto) -->
+                <div id="teacherFields" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <label for="teacherCard" class="block text-foreground mb-2 font-medium">
@@ -130,8 +117,8 @@
                             <input id="password"
                                    name="password"
                                    type="password"
-                                    pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$"
-       title="Mínimo 6 caracteres, incluye letras, números y un carácter especial"
+                                   pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$"
+                                   title="Mínimo 6 caracteres, incluye letras, números y un carácter especial"
                                    class="w-full pl-12 pr-12 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
                                    required />
                             <button type="button"
@@ -182,7 +169,7 @@
                 <!-- Link a Login -->
                 <div class="text-center text-sm text-muted-foreground">
                     ¿Ya tienes cuenta?
-                    <a asp-controller="Account" asp-action="LoginSelection" class="text-primary hover:underline font-medium ml-1">
+                    <a asp-controller="Account" asp-action="LoginDocente" class="text-primary hover:underline font-medium ml-1">
                         Inicia sesión aquí
                     </a>
                 </div>
@@ -196,16 +183,6 @@
     <script>
         function toggleUserFields() {
             const userType = document.getElementById('userType').value;
-            const studentFields = document.getElementById('studentFields');
-            const teacherFields = document.getElementById('teacherFields');
-
-            if (userType === 'estudiante') {
-                studentFields.classList.remove('hidden');
-                teacherFields.classList.add('hidden');
-            } else if (userType === 'docente') {
-                teacherFields.classList.remove('hidden');
-                studentFields.classList.add('hidden');
-            }
         }
 
         function togglePassword(inputId, iconId) {

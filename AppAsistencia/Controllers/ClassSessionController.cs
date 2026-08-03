@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AppAsistencia.Core.RBAC;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppAsistencia.Controllers
@@ -6,17 +7,16 @@ namespace AppAsistencia.Controllers
     public class ClassSessionController : Controller
     {
         // GET: ClassSessionController
+        [HttpGet]
+        [RequireRoutePermission("/ClassSession/ClassRecord", PermissionType.Edit, PermissionType.Delete, PermissionType.View)]
         public ActionResult ClassRecord()
         {
             return View();
         }
 
-        // GET: ClassSessionController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
 
+        [HttpGet]
+        [RequireRoutePermission("/ClassSession/CreateClass", PermissionType.Edit, PermissionType.Create, PermissionType.Delete, PermissionType.View)]
         // GET: ClassSessionController/Create
         public ActionResult CreateClass()
         {
@@ -24,62 +24,5 @@ namespace AppAsistencia.Controllers
         }
 
 
-
-        // POST: ClassSessionController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: ClassSessionController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: ClassSessionController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: ClassSessionController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: ClassSessionController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
     }
 }

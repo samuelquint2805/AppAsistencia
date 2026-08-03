@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AppAsistencia.Core.RBAC;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppAsistencia.Controllers
@@ -6,6 +7,7 @@ namespace AppAsistencia.Controllers
     public class NotificationsController : Controller
     {
         // GET: NotificationsController
+        [RequireRoutePermission("/Notifications/Index", PermissionType.Edit, PermissionType.View, PermissionType.Delete)]
         public ActionResult Index()
         {
             return View();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AppAsistencia.Core.RBAC;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppAsistencia.Controllers
@@ -6,6 +7,8 @@ namespace AppAsistencia.Controllers
     public class ReportController : Controller
     {
         // GET: ReportController
+        [HttpGet]
+        [RequireRoutePermission("/Report/Index", PermissionType.View)]
         public ActionResult Index()
         {
             return View();

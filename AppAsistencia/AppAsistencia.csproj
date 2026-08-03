@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <Folder Include="DTOs\DataViewModelDTO\" />
-    <Folder Include="Views\Auth\" />
+    <Folder Include="scriptSql\" />
     <Folder Include="Views\Admin\" />
   </ItemGroup>
 

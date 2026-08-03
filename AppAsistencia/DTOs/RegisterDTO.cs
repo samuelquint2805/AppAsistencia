@@ -10,8 +10,7 @@ namespace AppAsistencia.DTOs
     }
     public class RegisterDTO
     {
-        [Required(ErrorMessage = "El código institucional es obligatorio")]
-        public string InstitutionalCode { get; set; } = string.Empty;
+        
 
         [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
         public string UserName { get; set; } = string.Empty;
@@ -27,7 +26,9 @@ namespace AppAsistencia.DTOs
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres")]
+        [MinLength(6)]
+        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$",
+     ErrorMessage = "La contraseña debe tener mínimo 6 caracteres, letras, números y un carácter especial")]
         public string Password { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Debe indicar el rol del usuario")]

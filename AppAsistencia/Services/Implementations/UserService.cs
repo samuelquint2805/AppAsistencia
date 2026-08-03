@@ -11,8 +11,10 @@ namespace AppAsistencia.Services.Implementations
     {
         private readonly DataContextAsistencia _context;
         private readonly IEmailSenderService _emailSender;
-        private const string DominioInstitucional1 = "@correo.itm.edu.co";
-        private const string DominioInstitucional2 = "@itm.edu.co";
+        //private const string DominioInstitucional1 = "@correo.itm.edu.co";
+        private const string DominioInstitucional1 = "";
+        private const string DominioInstitucional2 = "";
+        //private const string DominioInstitucional2 = "@itm.edu.co";
 
         public UserService(DataContextAsistencia context, IEmailSenderService emailSender)
         {
@@ -57,7 +59,6 @@ namespace AppAsistencia.Services.Implementations
                 var user = new User
                 {
                     idUser = idUser,
-                    institutionalCode = dto.InstitutionalCode,
                     userName = dto.UserName,
                     firstname = dto.FirstName,
                     lastName = dto.LastName,
@@ -90,7 +91,7 @@ namespace AppAsistencia.Services.Implementations
                             professorIdCard = dto.professorIdCard!,
                             phoneNumber = dto.phoneNumber ?? string.Empty,
                             department = dto.department!
-                           
+
                         });
                         break;
 
@@ -106,24 +107,7 @@ namespace AppAsistencia.Services.Implementations
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                // 6. Envío de correo de confirmación (no revierte el registro si falla)
-                try
-                {
-                    var tokenResponse = await GenerarTokenConfirmacionAsync(idUser);
-                    if (tokenResponse.IsSuccess)
-                    {
-                        var link = $"https://tuapp.itm.edu.co/confirmar-email?id={idUser}&token={tokenResponse.Result}";
-                        await _emailSender.SendEmailAsync(
-                            user.email,
-                            "Confirma tu cuenta - AppAsistencia",
-                            $"<p>Hola {user.firstname}, confirma tu correo institucional haciendo clic <a href='{link}'>aquí</a>. El enlace expira en 24 horas.</p>");
-                    }
-                }
-                catch
-                {
-                    // El registro ya quedó guardado; el envío de correo se puede reintentar después.
-                }
-
+                
                 var resultado = new UserSummaryDTO
                 {
                     IdUser = user.idUser,
@@ -141,6 +125,24 @@ namespace AppAsistencia.Services.Implementations
             }
         }
 
+        public async Task<Response<bool>> ConfirmarEmailDirectoAsync(Guid idUser)
+        {
+            try
+            {
+                var user = await _context.Set<User>().FindAsync(idUser);
+                if (user is null)
+                    return Response<bool>.Failure("Usuario no encontrado");
+
+                user.isEmailConfirmed = true;
+                await _context.SaveChangesAsync();
+
+                return Response<bool>.Success(true, "Correo confirmado");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Failure(ex, "Ocurrió un error al confirmar el correo");
+            }
+        }
         public async Task<Response<User>> ValidarCredencialesAsync(string email, string password)
         {
             try
@@ -282,6 +284,193 @@ namespace AppAsistencia.Services.Implementations
             return !string.IsNullOrWhiteSpace(email)
                 && (email.Trim().EndsWith(DominioInstitucional1, StringComparison.OrdinalIgnoreCase) ||
                      email.Trim().EndsWith(DominioInstitucional2, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public async Task<Response<bool>> ActualizarPerfilAsync(Guid idUser, string firstName, string lastName, string email)
+        {
+            try
+            {
+                var user = await _context.Set<User>().FindAsync(idUser);
+                if (user is null)
+                    return Response<bool>.Failure("Usuario no encontrado");
+
+                if (!EsCorreoInstitucionalValido(email))
+                    return Response<bool>.Failure($"Solo se permiten correos institucionales terminados en {DominioInstitucional1} o {DominioInstitucional2}");
+
+                // Si el correo cambió, verifica que el nuevo no esté en uso por otra cuenta
+                if (!string.Equals(user.email, email, StringComparison.OrdinalIgnoreCase))
+                {
+                    var yaExiste = await _context.Set<User>().AnyAsync(u => u.email == email && u.idUser != idUser);
+                    if (yaExiste)
+                        return Response<bool>.Failure("Ese correo ya está en uso por otra cuenta");
+                }
+
+                user.firstname = firstName;
+                user.lastName = lastName;
+                user.email = email;
+
+                await _context.SaveChangesAsync();
+                return Response<bool>.Success(true, "Perfil actualizado");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Failure(ex, "Ocurrió un error al actualizar el perfil");
+            }
+        }
+
+        public async Task<Response<bool>> CambiarContrasenaAsync(Guid idUser, string actual, string nueva)
+        {
+            try
+            {
+                var user = await _context.Set<User>().FindAsync(idUser);
+                if (user is null)
+                    return Response<bool>.Failure("Usuario no encontrado");
+
+                if (!BCrypt.Net.BCrypt.Verify(actual, user.passwordHash))
+                    return Response<bool>.Failure("La contraseña actual no es correcta");
+
+                user.passwordHash = BCrypt.Net.BCrypt.HashPassword(nueva);
+                await _context.SaveChangesAsync();
+
+                return Response<bool>.Success(true, "Contraseña actualizada");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Failure(ex, "Ocurrió un error al cambiar la contraseña");
+            }
+        }
+
+        public async Task<Response<Student>> ObtenerEstudiantePorIdAsync(Guid idUser)
+        {
+            try
+            {
+                var estudiante = await _context.Set<Student>().FindAsync(idUser);
+                return estudiante is null
+                    ? Response<Student>.Failure("No se encontró información de estudiante")
+                    : Response<Student>.Success(estudiante);
+            }
+            catch (Exception ex)
+            {
+                return Response<Student>.Failure(ex, "Ocurrió un error al buscar el estudiante");
+            }
+        }
+        public async Task<Response<Professor>> ObtenerProfesorPorIdAsync(Guid idUser)
+        {
+            try
+            {
+                var profesor = await _context.Set<Professor>().FindAsync(idUser);
+                return profesor is null
+                    ? Response<Professor>.Failure("No se encontró información de docente")
+                    : Response<Professor>.Success(profesor);
+            }
+            catch (Exception ex)
+            {
+                return Response<Professor>.Failure(ex, "Ocurrió un error al buscar el docente");
+            }
+        }
+
+        public async Task<Response<Administrator>> ObtenerAdministradorPorIdAsync(Guid idUser)
+        {
+            try
+            {
+                var admin = await _context.Set<Administrator>().FindAsync(idUser);
+                return admin is null
+                    ? Response<Administrator>.Failure("No se encontró información de administrador")
+                    : Response<Administrator>.Success(admin);
+            }
+            catch (Exception ex)
+            {
+                return Response<Administrator>.Failure(ex, "Ocurrió un error al buscar el administrador");
+            }
+        }
+
+        public async Task<Response<bool>> ActualizarSemestreAsync(Guid idUser, int nuevoSemestre)
+        {
+            try
+            {
+                var estudiante = await _context.Set<Student>().FindAsync(idUser);
+                if (estudiante is null)
+                    return Response<bool>.Failure("No se encontró información de estudiante");
+
+                estudiante.currentSemester = nuevoSemestre;
+                await _context.SaveChangesAsync();
+
+                return Response<bool>.Success(true, "Semestre actualizado");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Failure(ex, "Ocurrió un error al actualizar el semestre");
+            }
+        }
+        public async Task<Response<bool>> ActualizarDatosEstudianteAsync(Guid idUser, string? phoneNumber, int currentSemester, string? studentIdCard)
+        {
+            try
+            {
+                var estudiante = await _context.Set<Student>().FindAsync(idUser);
+                if (estudiante is null)
+                    return Response<bool>.Failure("No se encontró información de estudiante");
+
+                estudiante.currentSemester = currentSemester;
+
+                if (!string.IsNullOrWhiteSpace(studentIdCard))
+                    estudiante.studentIdCard = studentIdCard;
+
+                if (!string.IsNullOrWhiteSpace(phoneNumber))
+                    estudiante.phoneNumber = phoneNumber;
+
+                await _context.SaveChangesAsync();
+                return Response<bool>.Success(true, "Datos de estudiante actualizados");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Failure(ex, "Ocurrió un error al actualizar los datos del estudiante");
+            }
+        }
+
+        public async Task<Response<bool>> ActualizarDatosProfesorAsync(Guid idUser, string? phoneNumber, string? department, string? professorIdCard)
+        {
+            try
+            {
+                var profesor = await _context.Set<Professor>().FindAsync(idUser);
+                if (profesor is null)
+                    return Response<bool>.Failure("No se encontró información de docente");
+
+                if (!string.IsNullOrWhiteSpace(department))
+                    profesor.department = department;
+                
+                if (!string.IsNullOrWhiteSpace(professorIdCard))
+                    profesor.professorIdCard = professorIdCard;
+
+                if (!string.IsNullOrWhiteSpace(phoneNumber))
+                    profesor.phoneNumber = phoneNumber;
+
+                await _context.SaveChangesAsync();
+                return Response<bool>.Success(true, "Datos de docente actualizados");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Failure(ex, "Ocurrió un error al actualizar los datos del docente");
+            }
+        }
+
+        public async Task<Response<bool>> ActualizarDatosAdministradorAsync(Guid idUser, string? phoneNumber)
+        {
+            try
+            {
+                var admin = await _context.Set<Administrator>().FindAsync(idUser);
+                if (admin is null)
+                    return Response<bool>.Failure("No se encontró información de administrador");
+
+                if (!string.IsNullOrWhiteSpace(phoneNumber))
+                    admin.phoneNumber = phoneNumber;
+
+                await _context.SaveChangesAsync();
+                return Response<bool>.Success(true, "Datos de administrador actualizados");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Failure(ex, "Ocurrió un error al actualizar los datos del administrador");
+            }
         }
     }
 }

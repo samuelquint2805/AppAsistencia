@@ -1,0 +1,227 @@
+@model AppAsistencia.Models.ConfigurationStaffViewModel
+
+@{
+    ViewData["Title"] = "Configuración";
+}
+
+<div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Configuración</h1>
+        <p class="text-muted-foreground">Personaliza tu experiencia en el sistema</p>
+    </div>
+
+    @if (ViewBag.Mensaje != null)
+    {
+        <div class="mb-6 p-3 rounded-lg bg-green-100 text-green-800 text-sm text-center">
+            @ViewBag.Mensaje
+        </div>
+    }
+    @if (ViewBag.Error != null)
+    {
+        <div class="mb-6 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
+            @ViewBag.Error
+        </div>
+    }
+
+    <form asp-controller="Account" asp-action="GuardarConfiguracion" method="post" class="space-y-6">
+        @Html.AntiForgeryToken()
+
+        <!-- Sección 1: Perfil -->
+        <div class="bg-white rounded-2xl shadow-lg border border-border p-6">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="bi bi-person text-primary text-2xl"></i>
+                <h2 class="text-xl font-bold text-foreground">Perfil</h2>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="name" class="block text-foreground mb-2 font-medium">Nombre Completo</label>
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           value="@Model.FullName"
+                           class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                           required />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="email" class="block text-foreground mb-2 font-medium">Correo</label>
+                        <input type="email"
+                               id="email"
+                               name="email"
+                               value="@Model.Email"
+                               class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                               required />
+                    </div>
+                    <div>
+                        <label for="phoneNumber" class="block text-foreground mb-2 font-medium">Teléfono</label>
+                        <input type="tel"
+                               id="phoneNumber"
+                               name="phoneNumber"
+                               value="@Model.PhoneNumber"
+                               placeholder="3001234567"
+                               class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                    </div>
+                </div>
+
+                @if (Model.EsProfessor)
+                {
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-foreground mb-2 font-medium">Carnet Docente</label>
+                            <input type="text"
+                                   value="@Model.ProfessorIdCard"
+                                   class="w-full px-4 py-3 bg-gray-100 border border-input rounded-lg focus:outline-none text-muted-foreground cursor-not-allowed"
+                                   disabled />
+                        </div>
+                        <div>
+                            <label for="department" class="block text-foreground mb-2 font-medium">Departamento</label>
+                            <select id="department"
+                                    name="department"
+                                    class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium">
+                                <option value="">Seleccionar departamento...</option>
+                                <option value="Sistemas e Informática" selected="@(Model.Department == "Sistemas e Informática")">Facultad de Ingenierías - Sistemas</option>
+                                <option value="Electrónica y Telecomunicaciones" selected="@(Model.Department == "Electrónica y Telecomunicaciones")">Electrónica y Telecomunicaciones</option>
+                                <option value="Ciencias Exactas y Aplicadas" selected="@(Model.Department == "Ciencias Exactas y Aplicadas")">Ciencias Exactas y Aplicadas</option>
+                                <option value="Artes y Humanidades" selected="@(Model.Department == "Artes y Humanidades")">Artes y Humanidades</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p class="text-sm text-blue-900">
+                            <i class="bi bi-info-circle mr-1"></i>
+                            Cuenta de Administrador del sistema.
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Sección 1.2: Cambio de contraseña -->
+        <div class="bg-white rounded-2xl shadow-lg border border-border p-6">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="bi bi-lock text-primary text-2xl"></i>
+                <h2 class="text-xl font-bold text-foreground">Cambio de Contraseña</h2>
+            </div>
+            <p class="text-sm text-muted-foreground mb-4">
+                Deja estos campos vacíos si no quieres cambiar tu contraseña.
+            </p>
+            <div class="space-y-4">
+                <div>
+                    <label for="currentPassword" class="block text-foreground mb-2 font-medium">Contraseña Actual</label>
+                    <input type="password"
+                           id="currentPassword"
+                           name="currentPassword"
+                           class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                </div>
+                <div>
+                    <label for="newPassword" class="block text-foreground mb-2 font-medium">Nueva Contraseña</label>
+                    <input type="password"
+                           id="newPassword"
+                           name="newPassword"
+                           pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$"
+                           title="Mínimo 6 caracteres, incluye letras, números y un carácter especial"
+                           class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                </div>
+                <div>
+                    <label for="confirmNewPassword" class="block text-foreground mb-2 font-medium">Confirmar Contraseña</label>
+                    <input type="password"
+                           id="confirmNewPassword"
+                           name="confirmNewPassword"
+                           class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección 2: Notificaciones -->
+        <div class="bg-white rounded-2xl shadow-lg border border-border p-6">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="bi bi-bell text-primary text-2xl"></i>
+                <h2 class="text-xl font-bold text-foreground">Notificaciones</h2>
+            </div>
+            <div class="space-y-4">
+
+                <div class="flex items-center justify-between py-3 border-b border-border">
+                    <div>
+                        <h3 class="font-medium text-foreground">Notificaciones por Email</h3>
+                        <p class="text-sm text-muted-foreground">Recibe avisos en tu correo institucional</p>
+                    </div>
+                    <label class="relative inline-block w-12 h-6">
+                        <input type="checkbox" name="notificacionesEmail" value="true" checked class="sr-only peer" />
+                        <span class="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"></span>
+                        <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></span>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between py-3 border-b border-border">
+                    <div>
+                        <h3 class="font-medium text-foreground">Notificaciones Push</h3>
+                        <p class="text-sm text-muted-foreground">Alertas en tiempo real</p>
+                    </div>
+                    <label class="relative inline-block w-12 h-6">
+                        <input type="checkbox" name="notificacionesPush" value="true" checked class="sr-only peer" />
+                        <span class="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"></span>
+                        <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></span>
+                    </label>
+                </div>
+
+                @if (Model.EsProfessor)
+                {
+                    <div class="flex items-center justify-between py-3">
+                        <div>
+                            <h3 class="font-medium text-foreground">Solicitudes de Confirmación Manual</h3>
+                            <p class="text-sm text-muted-foreground">Aviso cuando un estudiante pida validación manual</p>
+                        </div>
+                        <label class="relative inline-block w-12 h-6">
+                            <input type="checkbox" name="alertaConfirmacionManual" value="true" checked class="sr-only peer" />
+                            <span class="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"></span>
+                            <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></span>
+                        </label>
+                    </div>
+                }
+                else
+                {
+                    <div class="flex items-center justify-between py-3">
+                        <div>
+                            <h3 class="font-medium text-foreground">Alertas del Sistema</h3>
+                            <p class="text-sm text-muted-foreground">Avisos sobre incidencias y auditoría</p>
+                        </div>
+                        <label class="relative inline-block w-12 h-6">
+                            <input type="checkbox" name="alertaSistema" value="true" checked class="sr-only peer" />
+                            <span class="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"></span>
+                            <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></span>
+                        </label>
+                    </div>
+                }
+
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex flex-col sm:flex-row gap-4 pt-2">
+            <button type="submit"
+                    class="flex-1 bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors flex items-center justify-center gap-2 font-medium">
+                <i class="bi bi-floppy text-lg"></i>
+                Guardar Cambios
+            </button>
+            <a asp-controller="Home" asp-action="Index"
+               class="px-6 py-3 border border-border rounded-lg hover:bg-accent transition-colors text-center font-medium text-foreground block text-decoration-none">
+                Cancelar
+            </a>
+        </div>
+    </form>
+
+    <form asp-controller="Account" asp-action="Logout" method="post" class="mt-4">
+        @Html.AntiForgeryToken()
+        <button type="submit"
+                class="w-full sm:w-auto px-6 py-3 border-2 border-destructive text-destructive rounded-lg hover:bg-destructive/10 transition-colors font-medium flex items-center justify-center gap-2">
+            <i class="bi bi-box-arrow-right text-lg"></i>
+            Cerrar Sesión
+        </button>
+    </form>
+</div>
