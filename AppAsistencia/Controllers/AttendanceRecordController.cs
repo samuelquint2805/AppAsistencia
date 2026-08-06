@@ -18,6 +18,7 @@ namespace AppAsistencia.Controllers
 
         // GET: AttendanceRecordController/Create
         [HttpGet]
+        
         [RequireRoutePermission("/AttendanceRecord/CreateAssRecord", PermissionType.View, PermissionType.Create)]
         public ActionResult CreateAssRecord()
         {

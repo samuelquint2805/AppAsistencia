@@ -11,10 +11,9 @@ namespace AppAsistencia.Services.Implementations
     {
         private readonly DataContextAsistencia _context;
         private readonly IEmailSenderService _emailSender;
-        //private const string DominioInstitucional1 = "@correo.itm.edu.co";
-        private const string DominioInstitucional1 = "";
-        private const string DominioInstitucional2 = "";
-        //private const string DominioInstitucional2 = "@itm.edu.co";
+        private const string DominioInstitucional1 = "@correo.itm.edu.co";
+       
+        private const string DominioInstitucional2 = "@itm.edu.co";
 
         public UserService(DataContextAsistencia context, IEmailSenderService emailSender)
         {
