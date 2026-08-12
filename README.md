@@ -20,3 +20,12 @@ Permite a los docentes registrar y administrar la asistencia de sus estudiantes,
 ```bash
 git clone https://github.com/samuelquint2805/AppAsistencia.git
 cd AppAsistencia
+
+### 2.
+npm run build:css
+
+### 3. configuración de la base de datos dentro appsetings.json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=localhost;Database=AppAsistenciaDB;Trusted_Connection=True;TrustServerCertificate=True;"
+}
+
