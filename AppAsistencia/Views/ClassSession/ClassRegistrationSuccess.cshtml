@@ -1,0 +1,48 @@
+@using AppAsistencia.DTOs
+@{
+    ViewData["Title"] = "Clase Registrada";
+    var clase = ViewBag.Clase as GroupSummaryDTO;
+    var resumen = ViewBag.ResumenCarga as string;
+}
+
+<div class="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-blue-50 to-white">
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl p-12 border border-border text-center">
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="bi bi-check-circle text-green-600" style="font-size: 3rem;"></i>
+            </div>
+            <h1 class="text-foreground mb-4">¡Clase Registrada!</h1>
+
+            @if (clase != null)
+            {
+                <p class="text-muted-foreground mb-2">
+                    <b>@clase.SubjectName</b> · Grupo @clase.GroupName
+                </p>
+                <p class="text-sm text-muted-foreground mb-2">
+                    Aula @clase.Classroom · @clase.Schedule
+                </p>
+                <p class="text-sm text-muted-foreground mb-6">
+                    @clase.TotalEstudiantes estudiante(s) inscrito(s)
+                </p>
+            }
+
+            @if (!string.IsNullOrEmpty(resumen))
+            {
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6 text-sm text-blue-900">
+                    <i class="bi bi-info-circle mr-1"></i> @resumen
+                </div>
+            }
+
+            <div class="flex flex-col gap-3">
+                <a asp-controller="ClassSession" asp-action="RegisterStudents" asp-route-idGroup="@clase?.IdGroup"
+                   class="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors font-medium block text-decoration-none">
+                    Agregar más estudiantes
+                </a>
+                <a asp-controller="ClassSession" asp-action="ClassRecord"
+                   class="w-full border border-border py-3 rounded-lg hover:bg-accent transition-colors font-medium text-foreground block text-decoration-none">
+                    Ver mis clases registradas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

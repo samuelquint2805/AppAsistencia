@@ -1190,6 +1190,11 @@ label, button {
   border-color: rgb(var(--border) / 0.6);
 }
 
+.border-destructive {
+  --tw-border-opacity: 1;
+  border-color: rgb(var(--destructive) / var(--tw-border-opacity, 1));
+}
+
 .border-gray-300 {
   --tw-border-opacity: 1;
   border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
@@ -1277,6 +1282,11 @@ label, button {
 .bg-blue-700 {
   --tw-bg-opacity: 1;
   background-color: rgb(29 78 216 / var(--tw-bg-opacity, 1));
+}
+
+.bg-destructive {
+  --tw-bg-opacity: 1;
+  background-color: rgb(var(--destructive) / var(--tw-bg-opacity, 1));
 }
 
 .bg-destructive\/10 {
@@ -1694,6 +1704,11 @@ label, button {
   color: rgb(21 128 61 / var(--tw-text-opacity, 1));
 }
 
+.text-green-800 {
+  --tw-text-opacity: 1;
+  color: rgb(22 101 52 / var(--tw-text-opacity, 1));
+}
+
 .text-muted-foreground {
   --tw-text-opacity: 1;
   color: rgb(var(--muted-foreground) / var(--tw-text-opacity, 1));
@@ -1920,6 +1935,10 @@ label, button {
   background-color: rgb(30 64 175 / var(--tw-bg-opacity, 1));
 }
 
+.hover\:bg-destructive\/10:hover {
+  background-color: rgb(var(--destructive) / 0.1);
+}
+
 .hover\:bg-gray-50\/80:hover {
   background-color: rgb(249 250 251 / 0.8);
 }
@@ -2043,6 +2062,10 @@ label, button {
 
   .sm\:inline {
     display: inline;
+  }
+
+  .sm\:w-auto {
+    width: auto;
   }
 
   .sm\:grid-cols-2 {

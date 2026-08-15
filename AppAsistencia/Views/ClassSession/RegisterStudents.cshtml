@@ -1,0 +1,103 @@
+@using AppAsistencia.DTOs
+@{
+    ViewData["Title"] = "Registrar Estudiantes";
+    var clase = ViewBag.Clase as GroupSummaryDTO;
+    var estudiantes = ViewBag.Estudiantes as List<Classoptionsdto.StudentOptionDTO> ?? new List<Classoptionsdto.StudentOptionDTO>();
+}
+
+<div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Registrar Estudiantes</h1>
+        <p class="text-muted-foreground">
+            @if (clase != null)
+            {
+                <span>@clase.SubjectName · Grupo @clase.GroupName · Aula @clase.Classroom</span>
+            }
+            else
+            {
+                <span>Agrega estudiantes a la clase recién creada</span>
+            }
+        </p>
+    </div>
+
+    @if (TempData["ErrorClase"] != null)
+    {
+        <div class="mb-6 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
+            @TempData["ErrorClase"]
+        </div>
+    }
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Opción 1: seleccionar manualmente -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-border">
+            <div class="flex items-center gap-3 mb-4">
+                <i class="bi bi-person-check text-primary text-2xl"></i>
+                <h2 class="text-lg font-bold text-foreground">Seleccionar de la lista</h2>
+            </div>
+            <p class="text-sm text-muted-foreground mb-4">
+                Elige uno o varios estudiantes ya registrados en el sistema.
+            </p>
+
+            <form asp-controller="ClassSession" asp-action="RegisterStudentsDropdown" method="post" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="IdGroup" value="@clase?.IdGroup" />
+
+                <select name="StudentIds" multiple size="10"
+                        class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                    @foreach (var est in estudiantes)
+                    {
+                        <option value="@est.IdStudent">@est.NombreCompleto — @est.StudentIdCard (@est.Email)</option>
+                    }
+                </select>
+                <p class="text-xs text-muted-foreground">Mantén Ctrl (o Cmd) presionado para seleccionar varios.</p>
+
+                <button type="submit"
+                        class="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors font-medium">
+                    Inscribir seleccionados
+                </button>
+            </form>
+        </div>
+
+        <!-- Opción 2: subir archivo -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-border">
+            <div class="flex items-center gap-3 mb-4">
+                <i class="bi bi-file-earmark-spreadsheet text-primary text-2xl"></i>
+                <h2 class="text-lg font-bold text-foreground">Cargar archivo</h2>
+            </div>
+            <p class="text-sm text-muted-foreground mb-4">
+                Sube un archivo <b>.csv</b> o <b>.xlsx</b> con las columnas:
+                <code class="bg-gray-100 px-1 rounded">email</code>,
+                <code class="bg-gray-100 px-1 rounded">studentIdCard</code>,
+                <code class="bg-gray-100 px-1 rounded">firstName</code>,
+                <code class="bg-gray-100 px-1 rounded">lastName</code>,
+                <code class="bg-gray-100 px-1 rounded">phoneNumber</code> (opcional).
+                Si un estudiante no existe todavía, se crea automáticamente.
+            </p>
+
+            <form asp-controller="ClassSession" asp-action="RegisterStudentsFile" method="post" enctype="multipart/form-data" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idGroup" value="@clase?.IdGroup" />
+
+                <div class="relative">
+                    <input type="file" name="archivo" accept=".csv,.xlsx" required
+                           class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-primary-foreground file:font-medium" />
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors font-medium">
+                    Subir e inscribir
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="mt-6 text-center">
+        <a asp-controller="ClassSession" asp-action="ClassRecord" class="text-sm text-primary hover:underline">
+            Omitir por ahora, lo haré después desde "Clases Registradas"
+        </a>
+    </div>
+
+</div>

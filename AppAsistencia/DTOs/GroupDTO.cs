@@ -15,13 +15,15 @@ namespace AppAsistencia.DTOs
         [Required]
         public string groupName { get; set; } = null!;
 
-        [Required]
-        public string schedule { get; set; } = null!;
+       
         [Required]
         public string classroom { get; set; } = null!; 
 
         [Required]
         public string semester { get; set; } = null!;
+        
+        [Required]
+        public string GroupCode { get; set; } = null!;
 
         [Required]
         public bool isActive { get; set; } = true;

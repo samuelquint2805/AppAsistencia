@@ -15,8 +15,7 @@ namespace AppAsistencia.Models
         [Required]
         public string name { get; set; } = null!;
 
-        [Required]
-        public int credits { get; set; }
+       
         [Required]
         public bool isActive { get; set; } = true;
         #endregion

@@ -19,20 +19,27 @@ namespace AppAsistencia.Data.DBSET
     .WithMany(u => u.usersFK)
     .HasForeignKey(u => u.idRol);
 
-   //         modelBuilder.Entity<User>()
-   //.HasOne(u => u.studentFK)
-   //.WithMany()
-   //.HasForeignKey(u => u.idUser);
+            //         modelBuilder.Entity<User>()
+            //.HasOne(u => u.studentFK)
+            //.WithMany()
+            //.HasForeignKey(u => u.idUser);
 
-   //         modelBuilder.Entity<User>()
-   //.HasOne(u => u.administratorFK)
-   //.WithMany()
-   //.HasForeignKey(u => u.idUser);
+            //         modelBuilder.Entity<User>()
+            //.HasOne(u => u.administratorFK)
+            //.WithMany()
+            //.HasForeignKey(u => u.idUser);
 
-   //         modelBuilder.Entity<User>()
-   //.HasOne(u => u.professorFK)
-   //.WithMany()
-   //.HasForeignKey(u => u.idUser);
+            //         modelBuilder.Entity<User>()
+            //.HasOne(u => u.professorFK)
+            //.WithMany()
+            //.HasForeignKey(u => u.idUser);
+
+            modelBuilder.Entity<GroupSchedule>().ToTable("GROUPSCHEDULEMANAGEMENT");
+
+            modelBuilder.Entity<GroupSchedule>()
+                .HasOne(gs => gs.groupFK)
+                .WithMany()
+                .HasForeignKey(gs => gs.idGroup);
 
             modelBuilder.Entity<Administrator>().ToTable("ADMINMANAGEMENT");
 

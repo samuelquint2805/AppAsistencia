@@ -1,50 +1,52 @@
-﻿@{
+@using AppAsistencia.DTOs
+@{
     ViewData["Title"] = "Registrar Clase";
+    var cursos = ViewBag.Cursos as List<Classoptionsdto.SubjectOptionDTO> ?? new List<Classoptionsdto.SubjectOptionDTO>();
 }
 
 <div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
-    <!-- Encabezado -->
+
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-foreground mb-2">Registrar Clase</h1>
         <p class="text-muted-foreground">Programa una nueva sesión de clase</p>
     </div>
 
-    <!-- Tarjeta Principal con Formulario -->
+    @if (TempData["ErrorClase"] != null)
+    {
+        <div class="mb-6 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
+            @TempData["ErrorClase"]
+        </div>
+    }
+
     <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-border">
-        
-        <form asp-controller="Clases" asp-action="Registrar" method="post" class="space-y-6">
+
+        <form asp-controller="ClassSession" asp-action="CreateClass" method="post" class="space-y-6">
             @Html.AntiForgeryToken()
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
+
                 <!-- Curso -->
                 <div>
-                    <label for="curso" class="block text-foreground mb-2 font-medium">
-                        Curso
-                    </label>
-                    <select id="curso"
-                            name="curso"
+                    <label for="SubjectId" class="block text-foreground mb-2 font-medium">Curso</label>
+                    <select id="SubjectId"
+                            name="SubjectId"
                             class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium"
                             required>
                         <option value="">Selecciona un curso</option>
-                        <option value="prog1">Programación I</option>
-                        <option value="bd">Base de Datos</option>
-                        <option value="algo">Algoritmos</option>
-                        <option value="calculo">Cálculo</option>
-                        <option value="fisica">Física</option>
+                        @foreach (var curso in cursos)
+                        {
+                            <option value="@curso.IdSubject">@curso.SubjectCode - @curso.Name</option>
+                        }
                     </select>
                 </div>
 
                 <!-- Grupo -->
                 <div>
-                    <label for="grupo" class="block text-foreground mb-2 font-medium">
-                        Grupo
-                    </label>
+                    <label for="GroupName" class="block text-foreground mb-2 font-medium">Grupo</label>
                     <div class="relative">
                         <i class="bi bi-people absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
-                        <input id="grupo"
-                               name="grupo"
+                        <input id="GroupName"
+                               name="GroupName"
                                type="text"
                                placeholder="Ej: A01"
                                class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
@@ -54,13 +56,11 @@
 
                 <!-- Fecha -->
                 <div>
-                    <label for="fecha" class="block text-foreground mb-2 font-medium">
-                        Fecha
-                    </label>
+                    <label for="SessionDate" class="block text-foreground mb-2 font-medium">Fecha</label>
                     <div class="relative">
                         <i class="bi bi-calendar3 absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
-                        <input id="fecha"
-                               name="fecha"
+                        <input id="SessionDate"
+                               name="SessionDate"
                                type="date"
                                class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
                                required />
@@ -69,13 +69,11 @@
 
                 <!-- Aula -->
                 <div>
-                    <label for="aula" class="block text-foreground mb-2 font-medium">
-                        Aula
-                    </label>
+                    <label for="Classroom" class="block text-foreground mb-2 font-medium">Aula</label>
                     <div class="relative">
                         <i class="bi bi-geo-alt absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
-                        <input id="aula"
-                               name="aula"
+                        <input id="Classroom"
+                               name="Classroom"
                                type="text"
                                placeholder="Ej: 301"
                                class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
@@ -85,13 +83,11 @@
 
                 <!-- Hora de Inicio -->
                 <div>
-                    <label for="horaInicio" class="block text-foreground mb-2 font-medium">
-                        Hora de Inicio
-                    </label>
+                    <label for="StartTime" class="block text-foreground mb-2 font-medium">Hora de Inicio</label>
                     <div class="relative">
                         <i class="bi bi-clock absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
-                        <input id="horaInicio"
-                               name="horaInicio"
+                        <input id="StartTime"
+                               name="StartTime"
                                type="time"
                                class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
                                required />
@@ -100,59 +96,24 @@
 
                 <!-- Hora de Fin -->
                 <div>
-                    <label for="horaFin" class="block text-foreground mb-2 font-medium">
-                        Hora de Fin
-                    </label>
+                    <label for="EndTime" class="block text-foreground mb-2 font-medium">Hora de Fin</label>
                     <div class="relative">
                         <i class="bi bi-clock absolute left-3 top-1/2 -translate-y-1/2 text-xl text-muted-foreground"></i>
-                        <input id="horaFin"
-                               name="horaFin"
+                        <input id="EndTime"
+                               name="EndTime"
                                type="time"
                                class="w-full pl-12 pr-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
                                required />
                     </div>
                 </div>
 
-                <!-- Umbral de Tardanza -->
-                <div>
-                    <label for="umbralTardanza" class="block text-foreground mb-2 font-medium">
-                        Umbral de Tardanza (minutos)
-                    </label>
-                    <input id="umbralTardanza"
-                           name="umbralTardanza"
-                           type="number"
-                           min="0"
-                           max="30"
-                           value="10"
-                           class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium"
-                           required />
-                </div>
-
-                <!-- Método de Registro Permitido -->
-                <div>
-                    <label for="metodoPermitido" class="block text-foreground mb-2 font-medium">
-                        Método de Registro Permitido
-                    </label>
-                    <select id="metodoPermitido"
-                            name="metodoPermitido"
-                            class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium"
-                            required>
-                        <option value="todos">Todos (NFC, BLE, Biométrico)</option>
-                        <option value="nfc">Solo NFC</option>
-                        <option value="ble">Solo BLE</option>
-                        <option value="biometrico">Solo Biométrico</option>
-                        <option value="nfc-bio">NFC + Biométrico</option>
-                    </select>
-                </div>
-
             </div>
 
-            <!-- Botones de Acción -->
             <div class="flex flex-col sm:flex-row gap-4 pt-4">
                 <button type="submit"
                         class="flex-1 bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors flex items-center justify-center gap-2 font-medium shadow-md">
-                    <i class="bi bi-floppy text-lg"></i>
-                    Guardar Clase
+                    <i class="bi bi-arrow-right-circle text-lg"></i>
+                    Continuar: Registrar Estudiantes
                 </button>
                 <a asp-controller="Home" asp-action="Index"
                    class="px-6 py-3 border border-border rounded-lg hover:bg-accent transition-colors text-center font-medium text-foreground block text-decoration-none">
@@ -163,29 +124,16 @@
         </form>
     </div>
 
-    <!-- Caja Informativa Footer -->
+    <!-- Caja informativa: ahora refleja que estos valores son globales (Parametrización), no por clase -->
     <div class="mt-8 bg-blue-50/80 rounded-xl p-6 border border-blue-200">
         <h3 class="font-bold text-foreground mb-3 text-base">
-            <i class="bi bi-gear mr-1 text-primary"></i> Configuración de Registro
+            <i class="bi bi-info-circle mr-1 text-primary"></i> Sobre la ventana de marcación
         </h3>
-        <ul class="space-y-2 text-sm text-muted-foreground">
-            <li class="flex items-center gap-2">
-                <span class="text-primary">•</span>
-                Los estudiantes pueden marcar asistencia 10 minutos antes del inicio
-            </li>
-            <li class="flex items-center gap-2">
-                <span class="text-primary">•</span>
-                La ventana de registro se cierra 15 minutos después del inicio
-            </li>
-            <li class="flex items-center gap-2">
-                <span class="text-primary">•</span>
-                El umbral de tardanza determina cuándo se marca como "Tardanza" en lugar de "Presente"
-            </li>
-            <li class="flex items-center gap-2">
-                <span class="text-primary">•</span>
-                Puedes configurar qué métodos de registro están permitidos para esta clase
-            </li>
-        </ul>
+        <p class="text-sm text-muted-foreground">
+            La ventana de marcación, el umbral de tardanza y los métodos de registro permitidos se
+            configuran de forma global desde <b>Parametrización</b> (solo Administrador) y aplican
+            automáticamente a todas las clases del sistema.
+        </p>
     </div>
 
 </div>

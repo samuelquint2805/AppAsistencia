@@ -27,7 +27,7 @@ namespace AppAsistencia
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IEmailSenderService, SmtpEmailSender>();
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-
+            builder.Services.AddScoped<IClassService, ClassService>();
             builder.Services.AddMemoryCache();
             
 

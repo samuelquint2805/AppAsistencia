@@ -1,0 +1,63 @@
+@using AppAsistencia.DTOs
+@model EditClassDTO
+@{
+    ViewData["Title"] = "Editar Clase";
+}
+
+<div class="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Editar Clase</h1>
+        <p class="text-muted-foreground">Actualiza el grupo, el aula o reprograma la sesión</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-border">
+        <form asp-controller="ClassSession" asp-action="EditClass" method="post" class="space-y-6">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="IdGroup" />
+            <input type="hidden" asp-for="IdSession" />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label asp-for="GroupName" class="block text-foreground mb-2 font-medium">Grupo</label>
+                    <input asp-for="GroupName" type="text"
+                           class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" required />
+                </div>
+                <div>
+                    <label asp-for="Classroom" class="block text-foreground mb-2 font-medium">Aula</label>
+                    <input asp-for="Classroom" type="text"
+                           class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" required />
+                </div>
+                <div>
+                    <label asp-for="SessionDate" class="block text-foreground mb-2 font-medium">Fecha</label>
+                    <input asp-for="SessionDate" type="date" value="@Model.SessionDate.ToString("yyyy-MM-dd")"
+                           class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" required />
+                </div>
+                <div></div>
+                <div>
+                    <label asp-for="StartTime" class="block text-foreground mb-2 font-medium">Hora de Inicio</label>
+                    <input asp-for="StartTime" type="time" value="@Model.StartTime.ToString(@"hh\:mm")"
+                           class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" required />
+                </div>
+                <div>
+                    <label asp-for="EndTime" class="block text-foreground mb-2 font-medium">Hora de Fin</label>
+                    <input asp-for="EndTime" type="time" value="@Model.EndTime.ToString(@"hh\:mm")"
+                           class="w-full px-4 py-3 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" required />
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                <button type="submit"
+                        class="flex-1 bg-primary text-primary-foreground py-3 rounded-lg hover:bg-secondary transition-colors flex items-center justify-center gap-2 font-medium shadow-md">
+                    <i class="bi bi-floppy text-lg"></i>
+                    Guardar Cambios
+                </button>
+                <a asp-controller="ClassSession" asp-action="ClassRecord"
+                   class="px-6 py-3 border border-border rounded-lg hover:bg-accent transition-colors text-center font-medium text-foreground block text-decoration-none">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>

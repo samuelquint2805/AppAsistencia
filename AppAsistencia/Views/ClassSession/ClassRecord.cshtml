@@ -1,157 +1,100 @@
-﻿@{
-    ViewData["Title"] = "Historial de Clases";
-
-    // Estructura de datos en C# para el historial de clases
-    var clases = new[]
-    {
-        new { Id = 1, Curso = "Programación I", Docente = "Prof. Carlos Ramírez", Fecha = "2026-06-02", HoraInicio = "10:00 AM", HoraFin = "12:00 PM", Aula = "301", Asistencia = "Presente", Metodo = "NFC", HoraRegistro = "10:05 AM" },
-        new { Id = 2, Curso = "Base de Datos", Docente = "Prof. Ana Gómez", Fecha = "2026-06-02", HoraInicio = "2:00 PM", HoraFin = "4:00 PM", Aula = "205", Asistencia = "Tardanza", Metodo = "BLE", HoraRegistro = "2:15 PM" },
-        new { Id = 3, Curso = "Programación I", Docente = "Prof. Carlos Ramírez", Fecha = "2026-06-01", HoraInicio = "10:00 AM", HoraFin = "12:00 PM", Aula = "301", Asistencia = "Presente", Metodo = "NFC", HoraRegistro = "9:58 AM" },
-        new { Id = 4, Curso = "Algoritmos", Docente = "Prof. Luis Martínez", Fecha = "2026-06-01", HoraInicio = "8:00 AM", HoraFin = "10:00 AM", Aula = "402", Asistencia = "Ausente", Metodo = "-", HoraRegistro = "-" },
-        new { Id = 5, Curso = "Base de Datos", Docente = "Prof. Ana Gómez", Fecha = "2026-05-31", HoraInicio = "2:00 PM", HoraFin = "4:00 PM", Aula = "205", Asistencia = "Presente", Metodo = "Biométrico", HoraRegistro = "2:02 PM" },
-        new { Id = 6, Curso = "Cálculo", Docente = "Prof. María Silva", Fecha = "2026-05-31", HoraInicio = "4:00 PM", HoraFin = "6:00 PM", Aula = "103", Asistencia = "Presente", Metodo = "NFC", HoraRegistro = "4:01 PM" }
-    };
+@using AppAsistencia.DTOs
+@model List<GroupSummaryDTO>
+@{
+    ViewData["Title"] = "Clases Registradas";
 }
 
-<div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
-    <!-- Encabezado -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-foreground mb-2">Historial de Clases</h1>
-        <p class="text-muted-foreground">
-            Consulta todas las clases a las que has asistido
-        </p>
-    </div>
+<div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-    <!-- Sección de Filtros -->
-    <div class="bg-white rounded-xl shadow-md border border-border p-6 mb-6">
-        <h3 class="text-lg font-bold text-foreground mb-4">Filtros</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <select class="px-4 py-2 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium">
-                <option value="">Todos los cursos</option>
-                <option value="Programación I">Programación I</option>
-                <option value="Base de Datos">Base de Datos</option>
-                <option value="Algoritmos">Algoritmos</option>
-                <option value="Cálculo">Cálculo</option>
-            </select>
-            
-            <input type="date"
-                   class="px-4 py-2 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium" />
-            
-            <select class="px-4 py-2 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-medium">
-                <option value="">Todos los estados</option>
-                <option value="Presente">Presente</option>
-                <option value="Tardanza">Tardanza</option>
-                <option value="Ausente">Ausente</option>
-            </select>
+    <div class="mb-8 flex items-center justify-between flex-wrap gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-foreground mb-2">Clases Registradas</h1>
+            <p class="text-muted-foreground">Administra las clases que has creado</p>
         </div>
+        <a asp-controller="ClassSession" asp-action="CreateClass"
+           class="bg-primary text-primary-foreground px-5 py-3 rounded-lg hover:bg-secondary transition-colors font-medium flex items-center gap-2 text-decoration-none">
+            <i class="bi bi-plus-circle"></i> Registrar nueva clase
+        </a>
     </div>
 
-    <!-- Lista de Clases -->
-    <div class="space-y-4">
-        @foreach (var clase in clases)
-        {
-            // Determinar colores según estado
-            string cardBg = clase.Asistencia == "Presente" ? "bg-green-50/50 border-green-200" :
-                            clase.Asistencia == "Tardanza" ? "bg-yellow-50/50 border-yellow-200" : "bg-red-50/50 border-red-200";
+    @if (ViewBag.Mensaje != null)
+    {
+        <div class="mb-6 p-3 rounded-lg bg-green-100 text-green-800 text-sm text-center">@ViewBag.Mensaje</div>
+    }
+    @if (ViewBag.Error != null)
+    {
+        <div class="mb-6 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">@ViewBag.Error</div>
+    }
 
-            string badgeBg = clase.Asistencia == "Presente" ? "bg-green-100 text-green-700" :
-                             clase.Asistencia == "Tardanza" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700";
-
-            string iconClass = clase.Asistencia == "Presente" ? "bi-check-circle-fill text-green-600" :
-                               clase.Asistencia == "Tardanza" ? "bi-clock-fill text-yellow-600" : "bi-x-circle-fill text-red-600";
-
-            <div class="bg-white rounded-xl shadow-md border-2 p-6 transition-all @cardBg">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="flex-1">
-                        
-                        <!-- Título y Estado -->
-                        <div class="flex items-center gap-3 mb-4">
-                            <h2 class="text-xl font-bold text-foreground">@clase.Curso</h2>
-                            <div class="flex items-center gap-2">
-                                <i class="bi @iconClass text-lg"></i>
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold @badgeBg">
-                                    @clase.Asistencia
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Grilla de Detalle de la Clase -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                            
-                            <!-- Fecha -->
-                            <div class="flex items-center gap-3">
-                                <i class="bi bi-calendar3 text-muted-foreground text-lg"></i>
-                                <div>
-                                    <p class="text-xs text-muted-foreground">Fecha</p>
-                                    <p class="font-medium text-foreground">
-                                        @DateTime.Parse(clase.Fecha).ToString("dd/MM/yyyy")
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Horario -->
-                            <div class="flex items-center gap-3">
-                                <i class="bi bi-clock text-muted-foreground text-lg"></i>
-                                <div>
-                                    <p class="text-xs text-muted-foreground">Horario</p>
-                                    <p class="font-medium text-foreground">@clase.HoraInicio - @clase.HoraFin</p>
-                                </div>
-                            </div>
-
-                            <!-- Aula -->
-                            <div class="flex items-center gap-3">
-                                <i class="bi bi-geo-alt text-muted-foreground text-lg"></i>
-                                <div>
-                                    <p class="text-xs text-muted-foreground">Aula</p>
-                                    <p class="font-medium text-foreground">@clase.Aula</p>
-                                </div>
-                            </div>
-
-                            <!-- Docente -->
-                            <div class="flex items-center gap-3">
-                                <i class="bi bi-person text-muted-foreground text-lg"></i>
-                                <div>
-                                    <p class="text-xs text-muted-foreground">Docente</p>
-                                    <p class="font-medium text-foreground">@clase.Docente</p>
-                                </div>
-                            </div>
-
-                            <!-- Método -->
-                            <div class="flex items-center gap-3">
-                                <i class="bi bi-check-circle text-muted-foreground text-lg"></i>
-                                <div>
-                                    <p class="text-xs text-muted-foreground">Método</p>
-                                    <p class="font-medium text-foreground">@clase.Metodo</p>
-                                </div>
-                            </div>
-
-                            <!-- Hora de Registro -->
-                            <div class="flex items-center gap-3">
-                                <i class="bi bi-clock-history text-muted-foreground text-lg"></i>
-                                <div>
-                                    <p class="text-xs text-muted-foreground">Hora de Registro</p>
-                                    <p class="font-medium text-foreground">@clase.HoraRegistro</p>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-
-    <!-- Estado Vacío (Sin clases) -->
-    @if (!clases.Any())
+    @if (!Model.Any())
     {
         <div class="bg-white rounded-xl shadow-md border border-border p-12 text-center">
             <i class="bi bi-calendar-x text-5xl text-muted-foreground opacity-50 block mb-4"></i>
-            <h3 class="text-xl font-bold text-foreground mb-2">No hay clases registradas</h3>
-            <p class="text-muted-foreground">
-                Tu historial de clases aparecerá aquí una vez comiences a registrar asistencia
-            </p>
+            <h3 class="text-xl font-bold text-foreground mb-2">Aún no tienes clases registradas</h3>
+            <p class="text-muted-foreground">Registra tu primera clase para empezar a tomar asistencia.</p>
+        </div>
+    }
+    else
+    {
+        <div class="space-y-4">
+            @foreach (var clase in Model)
+            {
+                <div class="bg-white rounded-xl shadow-md border-2 @(clase.IsActive ? "border-border" : "border-border/50 opacity-70") p-6">
+                    <div class="flex items-start justify-between flex-wrap gap-4">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-3 mb-2 flex-wrap">
+                                <h2 class="text-lg font-bold text-foreground">@clase.SubjectName</h2>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-primary">Grupo @clase.GroupName</span>
+                                @if (!clase.IsActive)
+                                {
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-600">Desactivada</span>
+                                }
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-sm mt-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="bi bi-geo-alt text-muted-foreground"></i>
+                                    <span class="text-foreground">Aula @clase.Classroom</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="bi bi-clock text-muted-foreground"></i>
+                                    <span class="text-foreground">@clase.Schedule</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="bi bi-people text-muted-foreground"></i>
+                                    <span class="text-foreground">@clase.TotalEstudiantes estudiantes</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="bi bi-calendar-check text-muted-foreground"></i>
+                                    <span class="text-foreground">
+                                        @(clase.ProximaSesion.HasValue ? clase.ProximaSesion.Value.ToString("dd/MM/yyyy HH:mm") : "Sin próxima sesión")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 flex-shrink-0">
+                            <a asp-controller="ClassSession" asp-action="RegisterStudents" asp-route-idGroup="@clase.IdGroup"
+                               class="p-2.5 rounded-lg border border-border hover:bg-blue-50 text-muted-foreground hover:text-primary transition-colors" title="Agregar estudiantes">
+                                <i class="bi bi-person-plus text-lg"></i>
+                            </a>
+                            <a asp-controller="ClassSession" asp-action="EditClass" asp-route-id="@clase.IdGroup"
+                               class="p-2.5 rounded-lg border border-border hover:bg-blue-50 text-muted-foreground hover:text-primary transition-colors" title="Editar">
+                                <i class="bi bi-pencil text-lg"></i>
+                            </a>
+                            @if (clase.IsActive)
+                            {
+                                <form asp-controller="ClassSession" asp-action="DeactivateClass" asp-route-id="@clase.IdGroup" method="post"
+                                      onsubmit="return confirm('¿Desactivar esta clase? No se eliminará el historial de asistencia.');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="p-2.5 rounded-lg border border-border hover:bg-red-50 text-muted-foreground hover:text-destructive transition-colors" title="Desactivar">
+                                        <i class="bi bi-trash text-lg"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     }
 
