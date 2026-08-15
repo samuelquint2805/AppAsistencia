@@ -32,4 +32,4 @@ namespace AppAsistencia.DTOs
         public int TotalCursos { get; set; }
     }
 }
-}
+

@@ -64,7 +64,7 @@ namespace AppAsistencia.Services.Implementations
                         idGroup = Guid.NewGuid(),
                         groupName = dto.GroupName,
                         classroom = dto.Classroom,
-                        schedule = ConstruirHorarioDescriptivo(dto.SessionDate, dto.StartTime, dto.EndTime),
+                       
                         semester = semestreActual,
                         isActive = true,
                         subjectID = dto.SubjectId,
@@ -94,7 +94,7 @@ namespace AppAsistencia.Services.Implementations
                     SubjectName = subject?.name ?? string.Empty,
                     GroupName = grupo.groupName,
                     Classroom = grupo.classroom,
-                    Schedule = grupo.schedule,
+                    
                     Semester = grupo.semester,
                     IsActive = grupo.isActive,
                     TotalEstudiantes = 0,
@@ -266,7 +266,7 @@ namespace AppAsistencia.Services.Implementations
                     SubjectName = g.subjectFK?.name ?? string.Empty,
                     GroupName = g.groupName,
                     Classroom = g.classroom,
-                    Schedule = g.schedule,
+                   
                     Semester = g.semester,
                     IsActive = g.isActive,
                     TotalEstudiantes = g.studentGroupsFK.Count,
@@ -304,7 +304,6 @@ namespace AppAsistencia.Services.Implementations
                     SubjectName = g.subjectFK?.name ?? string.Empty,
                     GroupName = g.groupName,
                     Classroom = g.classroom,
-                    Schedule = g.schedule,
                     Semester = g.semester,
                     IsActive = g.isActive,
                     TotalEstudiantes = g.studentGroupsFK.Count,
