@@ -32,6 +32,7 @@ namespace AppAsistencia.DTOs
         #region relationships
         // One-to-Many relationship with student
         public List<StudentGroupDTO> studentGroupsDTOFK { get; set; } = [];
+        public ICollection<GroupScheduleDTO> scheduleDaysFK { get; set; } = new List<GroupScheduleDTO>();
 
         // One-to-Many relationship with classSession
         public ICollection<ClassSessionDTO> classSessionsDTOFK { get; set; } = new List<ClassSessionDTO>();

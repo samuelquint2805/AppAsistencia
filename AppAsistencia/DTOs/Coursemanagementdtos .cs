@@ -14,6 +14,13 @@ namespace AppAsistencia.DTOs
         public TimeSpan HoraFin { get; set; }
     }
 
+    public class ProfessorOptionDTO
+    {
+        public Guid IdTeacher { get; set; }
+        public string NombreCompleto { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+    }
+
     public class CreateCourseDTO
     {
         [Required(ErrorMessage = "Selecciona una asignatura")]

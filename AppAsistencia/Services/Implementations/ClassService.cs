@@ -27,51 +27,58 @@ namespace AppAsistencia.Services.Implementations
         {
             try
             {
-                if (dto.EndTime <= dto.StartTime)
-                    return Response<GroupSummaryDTO>.Failure("La hora de fin debe ser posterior a la hora de inicio");
+                var grupo = await _context.Set<Group>()
+                    .Include(g => g.subjectFK)
+                    .Include(g => g.scheduleDaysFK)
+                    .Include(g => g.studentGroupsFK)
+                    .FirstOrDefaultAsync(g => g.idGroup == dto.IdGroup);
 
-                var nuevoInicio = dto.SessionDate.Date.Add(dto.StartTime);
-                var nuevoFin = dto.SessionDate.Date.Add(dto.EndTime);
+                if (grupo is null)
+                    return Response<GroupSummaryDTO>.Failure("El curso seleccionado no existe");
 
-                // Choque de aula/horario: se valida contra TODAS las sesiones existentes,
-                // sin importar de qué docente sean.
+                if (!grupo.isActive)
+                    return Response<GroupSummaryDTO>.Failure("Este curso está desactivado");
+
+                // Seguridad: un docente solo puede agendar sesiones de SUS propios cursos asignados
+                if (grupo.professorID != idProfessor)
+                    return Response<GroupSummaryDTO>.Failure("No tienes permiso para agendar sesiones de este curso");
+
+                // Busca si ese día de la semana está habilitado en el horario del curso
+                var diaSemana = dto.SessionDate.DayOfWeek;
+                var horarioDelDia = grupo.scheduleDaysFK.FirstOrDefault(gs => gs.dayOfWeek == diaSemana);
+
+                if (horarioDelDia is null)
+                {
+                    var diasHabilitados = string.Join(", ", grupo.scheduleDaysFK
+                        .Select(gs => FileRowParser.NombreDiaEnEspanol(gs.dayOfWeek)));
+
+                    return Response<GroupSummaryDTO>.Failure(
+                        $"Este curso no tiene clase programada el {FileRowParser.NombreDiaEnEspanol(diaSemana)}. " +
+                        $"Días habilitados: {diasHabilitados}.");
+                }
+
+                var nuevoInicio = dto.SessionDate.Date.Add(horarioDelDia.startTime);
+                var nuevoFin = dto.SessionDate.Date.Add(horarioDelDia.endTime);
+
+                // Evita registrar dos veces la sesión del mismo curso en la misma fecha
+                var yaExisteEsaFecha = await _context.Set<ClassSession>()
+                    .AnyAsync(cs => cs.groupID == dto.IdGroup && cs.startTime.Date == dto.SessionDate.Date);
+
+                if (yaExisteEsaFecha)
+                    return Response<GroupSummaryDTO>.Failure("Ya existe una sesión registrada para este curso en esa fecha");
+
+                // Salvaguarda: choque de aula (por si dos cursos distintos quedaron mal configurados)
                 var conflicto = await _context.Set<ClassSession>()
                     .Include(cs => cs.groupFK)
-                    .AnyAsync(cs => cs.groupFK.classroom == dto.Classroom
+                    .AnyAsync(cs => cs.groupID != dto.IdGroup
+                                 && cs.groupFK.classroom == grupo.classroom
                                  && cs.startTime < nuevoFin
                                  && cs.endTime > nuevoInicio);
 
                 if (conflicto)
                     return Response<GroupSummaryDTO>.Failure(
-                        "No es posible registrar esta sesión de clase en esa aula y horario. " +
+                        "No es posible registrar esta sesión: ya hay otra clase en esa aula y horario. " +
                         "Si crees que esto es un error, comunícate con sistemas.");
-
-                var semestreActual = CalcularSemestreActual();
-
-                var grupo = await _context.Set<Group>().FirstOrDefaultAsync(g =>
-                    g.subjectID == dto.SubjectId &&
-                    g.professorID == idProfessor &&
-                    g.groupName == dto.GroupName &&
-                    g.semester == semestreActual &&
-                    g.isActive);
-
-                await using var transaction = await _context.Database.BeginTransactionAsync();
-
-                if (grupo is null)
-                {
-                    grupo = new Group
-                    {
-                        idGroup = Guid.NewGuid(),
-                        groupName = dto.GroupName,
-                        classroom = dto.Classroom,
-                       
-                        semester = semestreActual,
-                        isActive = true,
-                        subjectID = dto.SubjectId,
-                        professorID = idProfessor
-                    };
-                    _context.Add(grupo);
-                }
 
                 var sesion = new ClassSession
                 {
@@ -81,29 +88,25 @@ namespace AppAsistencia.Services.Implementations
                     status = "Programada",
                     groupID = grupo.idGroup
                 };
+
                 _context.Add(sesion);
-
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                var subject = await _context.Set<Subject>().FindAsync(dto.SubjectId);
 
                 return Response<GroupSummaryDTO>.Success(new GroupSummaryDTO
                 {
                     IdGroup = grupo.idGroup,
-                    SubjectName = subject?.name ?? string.Empty,
+                    SubjectName = grupo.subjectFK?.name ?? string.Empty,
                     GroupName = grupo.groupName,
                     Classroom = grupo.classroom,
-                    
                     Semester = grupo.semester,
                     IsActive = grupo.isActive,
-                    TotalEstudiantes = 0,
+                    TotalEstudiantes = grupo.studentGroupsFK.Count,
                     ProximaSesion = nuevoInicio
-                }, "Clase registrada correctamente");
+                }, "Sesión de clase registrada correctamente");
             }
             catch (Exception ex)
             {
-                return Response<GroupSummaryDTO>.Failure(ex, "No se pudo registrar la clase");
+                return Response<GroupSummaryDTO>.Failure(ex, "No se pudo registrar la sesión de clase");
             }
         }
 
@@ -406,47 +409,11 @@ namespace AppAsistencia.Services.Implementations
             }
         }
 
-        public async Task<Response<List<SubjectOptionDTO>>> ObtenerCursosActivosAsync()
-        {
-            try
-            {
-                var cursos = await _context.Set<Subject>()
-                    .Where(s => s.isActive)
-                    .Select(s => new SubjectOptionDTO
-                    {
-                        IdSubject = s.idSubject,
-                        SubjectCode = s.subjectCode,
-                        Name = s.name
-                    })
-                    .OrderBy(s => s.Name)
-                    .ToListAsync();
-
-                return Response<List<SubjectOptionDTO>>.Success(cursos);
-            }
-            catch (Exception ex)
-            {
-                return Response<List<SubjectOptionDTO>>.Failure(ex, "No se pudieron obtener los cursos");
-            }
-        }
+       
 
         // ---------------- Helpers privados ----------------
 
-        private static string CalcularSemestreActual()
-        {
-            var ahora = DateTime.UtcNow;
-            var periodo = ahora.Month <= 6 ? 1 : 2;
-            return $"{ahora.Year}-{periodo}";
-        }
-
-        private static string ConstruirHorarioDescriptivo(DateTime fecha, TimeSpan inicio, TimeSpan fin)
-        {
-            var cultura = new System.Globalization.CultureInfo("es-ES");
-            var dia = fecha.ToString("dddd", cultura);
-            dia = char.ToUpper(dia[0]) + dia[1..];
-            var horaInicio = DateTime.Today.Add(inicio).ToString("hh:mm tt", cultura);
-            var horaFin = DateTime.Today.Add(fin).ToString("hh:mm tt", cultura);
-            return $"{dia} {horaInicio} - {horaFin}";
-        }
+      
 
         private List<Dictionary<string, string>> ExtraerFilas(Stream archivo, string nombreArchivo, ImportStudentsResultDTO resultado)
         {

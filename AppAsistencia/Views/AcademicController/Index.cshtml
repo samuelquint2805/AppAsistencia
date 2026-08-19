@@ -1,0 +1,327 @@
+@using AppAsistencia.DTOs
+@{
+    ViewData["Title"] = "Gestión Académica";
+}
+
+<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Gestión Académica</h1>
+        <p class="text-muted-foreground">Administra asignaturas y cursos del sistema</p>
+    </div>
+
+    @if (ViewBag.Mensaje != null)
+    {
+        <div class="mb-4 p-3 rounded-lg bg-green-100 text-green-800 text-sm text-center">@ViewBag.Mensaje</div>
+    }
+    @if (ViewBag.Error != null)
+    {
+        <div class="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">@ViewBag.Error</div>
+    }
+    @if (ViewBag.Duplicados != null)
+    {
+        <div class="mb-4 p-3 rounded-lg bg-amber-100 text-amber-800 text-sm">
+            <i class="bi bi-exclamation-triangle mr-1"></i> Duplicados omitidos: @ViewBag.Duplicados
+        </div>
+    }
+    @if (ViewBag.ErroresCarga != null)
+    {
+        <div class="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+            <i class="bi bi-x-circle mr-1"></i> Filas con error: @ViewBag.ErroresCarga
+        </div>
+    }
+
+    <div class="flex flex-col md:flex-row gap-6">
+
+        <!-- Menú lateral -->
+        <aside class="md:w-56 flex-shrink-0">
+            <div class="bg-white rounded-2xl shadow-sm border border-border p-3 md:sticky md:top-6">
+                <nav class="flex md:flex-col gap-2">
+                    <button type="button" id="btn-tab-asignaturas" onclick="mostrarTab('asignaturas')"
+                            class="tab-btn flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-left transition-colors bg-primary text-primary-foreground">
+                        <i class="bi bi-journal-bookmark text-lg"></i> Asignaturas
+                    </button>
+                    <button type="button" id="btn-tab-cursos" onclick="mostrarTab('cursos')"
+                            class="tab-btn flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-left transition-colors text-foreground hover:bg-accent">
+                        <i class="bi bi-collection text-lg"></i> Cursos
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Contenido -->
+        <div class="flex-1 min-w-0">
+
+            <!-- ================= PANEL ASIGNATURAS ================= -->
+            <div id="panel-asignaturas">
+
+                <div class="bg-white rounded-2xl shadow-sm border border-border p-6 mb-6">
+                    <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                        <div class="relative flex-1">
+                            <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
+                            <input type="text" id="buscar-asignatura" oninput="renderAsignaturas()"
+                                   placeholder="Buscar por nombre o código..."
+                                   class="w-full pl-10 pr-4 py-2.5 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                        </div>
+                        <button type="button" onclick="toggleForm('form-nueva-asignatura')"
+                                class="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg hover:bg-secondary transition-colors font-medium flex items-center gap-2 whitespace-nowrap">
+                            <i class="bi bi-plus-circle"></i> Nueva asignatura
+                        </button>
+                        <button type="button" onclick="toggleForm('form-carga-asignaturas')"
+                                class="border border-border px-5 py-2.5 rounded-lg hover:bg-accent transition-colors font-medium flex items-center gap-2 whitespace-nowrap">
+                            <i class="bi bi-file-earmark-arrow-up"></i> Carga masiva
+                        </button>
+                    </div>
+
+                    <!-- Alta unitaria -->
+                    <form id="form-nueva-asignatura" asp-controller="Subject" asp-action="Create" method="post"
+                          class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-blue-50/60 rounded-xl border border-blue-200 mb-3">
+                        @Html.AntiForgeryToken()
+                        <input type="text" name="SubjectCode" placeholder="Código (ej: 5503428)" required
+                               class="px-3 py-2 bg-white border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring sm:col-span-1" />
+                        <input type="text" name="Name" placeholder="Nombre de la asignatura" required
+                               class="px-3 py-2 bg-white border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring sm:col-span-1" />
+                        <button type="submit" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-secondary transition-colors font-medium">
+                            Guardar
+                        </button>
+                    </form>
+
+                    <!-- Carga masiva -->
+                    <form id="form-carga-asignaturas" asp-controller="Subject" asp-action="BulkImport" method="post" enctype="multipart/form-data"
+                          class="hidden flex flex-col sm:flex-row gap-3 items-start sm:items-center p-4 bg-blue-50/60 rounded-xl border border-blue-200">
+                        @Html.AntiForgeryToken()
+                        <input type="file" name="archivo" accept=".csv,.xlsx" required
+                               class="flex-1 text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-primary-foreground file:font-medium" />
+                        <button type="submit" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-secondary transition-colors font-medium whitespace-nowrap">
+                            Subir archivo
+                        </button>
+                        <span class="text-xs text-muted-foreground">Columnas: name, subjectCode</span>
+                    </form>
+                </div>
+
+                <div id="lista-asignaturas" class="space-y-3"></div>
+            </div>
+
+            <!-- ================= PANEL CURSOS ================= -->
+            <div id="panel-cursos" class="hidden">
+
+                <div class="bg-white rounded-2xl shadow-sm border border-border p-6 mb-6">
+                    <div class="flex flex-col sm:flex-row gap-3 mb-3">
+                        <div class="relative flex-1">
+                            <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
+                            <input type="text" id="buscar-curso" oninput="renderCursos()"
+                                   placeholder="Buscar por asignatura, código, aula..."
+                                   class="w-full pl-10 pr-4 py-2.5 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                        </div>
+                        <select id="filtro-docente" onchange="renderCursos()"
+                                class="px-4 py-2.5 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring">
+                            <option value="">Todos los docentes</option>
+                        </select>
+                        <a asp-controller="Course" asp-action="Create"
+                           class="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg hover:bg-secondary transition-colors font-medium flex items-center gap-2 whitespace-nowrap text-decoration-none">
+                            <i class="bi bi-plus-circle"></i> Nuevo curso
+                        </a>
+                        <button type="button" onclick="toggleForm('form-carga-cursos')"
+                                class="border border-border px-5 py-2.5 rounded-lg hover:bg-accent transition-colors font-medium flex items-center gap-2 whitespace-nowrap">
+                            <i class="bi bi-file-earmark-arrow-up"></i> Carga masiva
+                        </button>
+                    </div>
+
+                    <form id="form-carga-cursos" asp-controller="Course" asp-action="BulkImport" method="post" enctype="multipart/form-data"
+                          class="hidden flex flex-col sm:flex-row gap-3 items-start sm:items-center p-4 bg-blue-50/60 rounded-xl border border-blue-200">
+                        @Html.AntiForgeryToken()
+                        <input type="file" name="archivo" accept=".csv,.xlsx" required
+                               class="flex-1 text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-primary-foreground file:font-medium" />
+                        <button type="submit" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-secondary transition-colors font-medium whitespace-nowrap">
+                            Subir archivo
+                        </button>
+                        <span class="text-xs text-muted-foreground">
+                            Columnas: subjectCode, groupCode, groupName, classroom, professorEmail, semester, days (Lunes;Jueves), startTime, endTime
+                        </span>
+                    </form>
+                </div>
+
+                <div id="lista-cursos" class="space-y-3"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const asignaturasData = @Html.Raw(ViewBag.AsignaturasJson);
+        const cursosData = @Html.Raw(ViewBag.CursosJson);
+
+        function mostrarTab(tab) {
+            const panelAsignaturas = document.getElementById('panel-asignaturas');
+            const panelCursos = document.getElementById('panel-cursos');
+            const btnAsignaturas = document.getElementById('btn-tab-asignaturas');
+            const btnCursos = document.getElementById('btn-tab-cursos');
+
+            const activo = "tab-btn flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-left transition-colors bg-primary text-primary-foreground";
+            const inactivo = "tab-btn flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-left transition-colors text-foreground hover:bg-accent";
+
+            if (tab === 'asignaturas') {
+                panelAsignaturas.classList.remove('hidden');
+                panelCursos.classList.add('hidden');
+                btnAsignaturas.className = activo;
+                btnCursos.className = inactivo;
+            } else {
+                panelCursos.classList.remove('hidden');
+                panelAsignaturas.classList.add('hidden');
+                btnCursos.className = activo;
+                btnAsignaturas.className = inactivo;
+            }
+        }
+
+        function toggleForm(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+
+        function badgeEstado(activo) {
+            return activo
+                ? '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Activa</span>'
+                : '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-600">Deshabilitada</span>';
+        }
+
+        // ---------------- Asignaturas ----------------
+        function renderAsignaturas() {
+            const filtro = document.getElementById('buscar-asignatura').value.trim().toLowerCase();
+            const contenedor = document.getElementById('lista-asignaturas');
+
+            const filtradas = asignaturasData.filter(a =>
+                a.name.toLowerCase().includes(filtro) || a.subjectCode.toLowerCase().includes(filtro)
+            );
+
+            if (filtradas.length === 0) {
+                contenedor.innerHTML = `<div class="bg-white rounded-xl border border-border p-10 text-center text-muted-foreground">
+                    <i class="bi bi-journal-x text-3xl block mb-2 opacity-50"></i> No se encontraron asignaturas.
+                </div>`;
+                return;
+            }
+
+            contenedor.innerHTML = filtradas.map(a => `
+                <div class="bg-white rounded-xl border-2 ${a.isActive ? 'border-border' : 'border-border/50 opacity-70'} p-5 flex items-center justify-between flex-wrap gap-4">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-3 flex-wrap mb-1">
+                            <h3 class="font-bold text-foreground">${a.name}</h3>
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-primary">${a.subjectCode}</span>
+                            ${badgeEstado(a.isActive)}
+                        </div>
+                        <p class="text-sm text-muted-foreground">${a.totalCursos} curso(s) asociado(s)</p>
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                        <a href="/Subject/Edit/${a.idSubject}" title="Editar"
+                           class="p-2.5 rounded-lg border border-border hover:bg-blue-50 text-muted-foreground hover:text-primary transition-colors">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form action="/Subject/${a.isActive ? 'Disable' : 'Enable'}/${a.idSubject}" method="post" class="inline">
+                            ${tokenInput()}
+                            <button type="submit" title="${a.isActive ? 'Deshabilitar' : 'Habilitar'}"
+                                    class="p-2.5 rounded-lg border border-border hover:bg-amber-50 text-muted-foreground hover:text-amber-600 transition-colors">
+                                <i class="bi ${a.isActive ? 'bi-eye-slash' : 'bi-eye'}"></i>
+                            </button>
+                        </form>
+                        <form action="/Subject/Delete/${a.idSubject}" method="post" class="inline"
+                              onsubmit="return confirm('¿Eliminar esta asignatura? Solo es posible si no tiene cursos asociados.');">
+                            ${tokenInput()}
+                            <button type="submit" ${a.totalCursos > 0 ? 'disabled title="Tiene cursos asociados"' : 'title="Eliminar"'}
+                                    class="p-2.5 rounded-lg border border-border ${a.totalCursos > 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-red-50 hover:text-destructive'} text-muted-foreground transition-colors">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ---------------- Cursos ----------------
+        function poblarFiltroDocentes() {
+            const select = document.getElementById('filtro-docente');
+            const nombres = [...new Set(cursosData.map(c => c.professorName))].sort();
+            nombres.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n; opt.textContent = n;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderCursos() {
+            const filtro = document.getElementById('buscar-curso').value.trim().toLowerCase();
+            const docente = document.getElementById('filtro-docente').value;
+            const contenedor = document.getElementById('lista-cursos');
+
+            const filtrados = cursosData.filter(c => {
+                const coincideTexto = !filtro ||
+                    c.subjectName.toLowerCase().includes(filtro) ||
+                    c.subjectCode.toLowerCase().includes(filtro) ||
+                    c.groupCode.toLowerCase().includes(filtro) ||
+                    c.groupName.toLowerCase().includes(filtro) ||
+                    c.classroom.toLowerCase().includes(filtro) ||
+                    c.professorName.toLowerCase().includes(filtro);
+                const coincideDocente = !docente || c.professorName === docente;
+                return coincideTexto && coincideDocente;
+            });
+
+            if (filtrados.length === 0) {
+                contenedor.innerHTML = `<div class="bg-white rounded-xl border border-border p-10 text-center text-muted-foreground">
+                    <i class="bi bi-collection text-3xl block mb-2 opacity-50"></i> No se encontraron cursos.
+                </div>`;
+                return;
+            }
+
+            contenedor.innerHTML = filtrados.map(c => `
+                <div class="bg-white rounded-xl border-2 ${c.isActive ? 'border-border' : 'border-border/50 opacity-70'} p-5">
+                    <div class="flex items-start justify-between flex-wrap gap-4">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-3 flex-wrap mb-1">
+                                <h3 class="font-bold text-foreground">${c.etiquetaDisplay} — ${c.groupName}</h3>
+                                ${badgeEstado(c.isActive)}
+                            </div>
+                            <p class="text-sm text-muted-foreground mb-2">${c.subjectName}</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+                                <div class="flex items-center gap-2"><i class="bi bi-person text-muted-foreground"></i> ${c.professorName}</div>
+                                <div class="flex items-center gap-2"><i class="bi bi-geo-alt text-muted-foreground"></i> Aula ${c.classroom}</div>
+                                <div class="flex items-center gap-2"><i class="bi bi-clock text-muted-foreground"></i> ${c.horarioResumen}</div>
+                                <div class="flex items-center gap-2"><i class="bi bi-calendar-check text-muted-foreground"></i> ${c.totalSesiones} sesión(es)</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 flex-shrink-0">
+                            <a href="/Course/Edit/${c.idGroup}" title="Editar"
+                               class="p-2.5 rounded-lg border border-border hover:bg-blue-50 text-muted-foreground hover:text-primary transition-colors">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="/Course/${c.isActive ? 'Disable' : 'Enable'}/${c.idGroup}" method="post" class="inline">
+                                ${tokenInput()}
+                                <button type="submit" title="${c.isActive ? 'Deshabilitar' : 'Habilitar'}"
+                                        class="p-2.5 rounded-lg border border-border hover:bg-amber-50 text-muted-foreground hover:text-amber-600 transition-colors">
+                                    <i class="bi ${c.isActive ? 'bi-eye-slash' : 'bi-eye'}"></i>
+                                </button>
+                            </form>
+                            <form action="/Course/Delete/${c.idGroup}" method="post" class="inline"
+                                  onsubmit="return confirm('¿Eliminar este curso? Solo es posible si no tiene sesiones registradas.');">
+                                ${tokenInput()}
+                                <button type="submit" ${c.totalSesiones > 0 ? 'disabled title="Tiene sesiones registradas"' : 'title="Eliminar"'}
+                                        class="p-2.5 rounded-lg border border-border ${c.totalSesiones > 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-red-50 hover:text-destructive'} text-muted-foreground transition-colors">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function tokenInput() {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            return `<input type="hidden" name="__RequestVerificationToken" value="${token}" />`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            poblarFiltroDocentes();
+            renderAsignaturas();
+            renderCursos();
+        });
+    </script>
+}

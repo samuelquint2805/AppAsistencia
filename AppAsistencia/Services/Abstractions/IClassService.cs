@@ -21,6 +21,6 @@ namespace AppAsistencia.Services.Abstractions
 
         // Datos de apoyo para los formularios
         Task<Response<List<StudentOptionDTO>>> ObtenerTodosLosEstudiantesAsync();
-        Task<Response<List<SubjectOptionDTO>>> ObtenerCursosActivosAsync();
+       
     }
 }
